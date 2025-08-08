@@ -21,13 +21,13 @@ public class Launcher : MonoBehaviourPunCallbacks
         
     }
 
-   //public void CreateRoom()
-   // {
-   //     RoomOptions roomOptions = new RoomOptions();
-   //     roomOptions.IsVisible = false;
-   //     roomOptions.MaxPlayers = 4;
-   //     PhotonNetwork.JoinOrCreateRoom(nameEveryFriendKnows, roomOptions, TypedLobby.Default);
-   //     Debug.Log("my room name is " + nameEveryFriendKnows);
-   // }
-    
+    public void CreateRoom()
+    {
+        RoomOptions roomOptions = new RoomOptions();
+        roomOptions.IsVisible = false;
+        roomOptions.MaxPlayers = 4;
+        PhotonNetwork.JoinOrCreateRoom(nameEveryFriendKnows, roomOptions, TypedLobby.Default);
+        Debug.Log("my room name is " + nameEveryFriendKnows);
+    }
+
 }
