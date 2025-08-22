@@ -8,7 +8,7 @@ public class Player_Model : MonoBehaviour, IMove_Look
     [Header("Photon")]
     public PhotonView _photonView;
     public TMPro.TextMeshPro _playerName;
-    public bool banned;
+    public bool _banned;
 
 
 
@@ -19,38 +19,45 @@ public class Player_Model : MonoBehaviour, IMove_Look
     public Rigidbody2D _rb;
 
 
-
+    #region Pun methods
     public void BanPlayer()
     {
         Debug.Log("Player Banned");
-        banned = true;
+        _banned = true;
         PhotonNetwork.Disconnect();
     }
+    #endregion
 
-
-    public void Move(Vector3 dir)
+    #region Player Movement
+    public void Move()
     {
-        
+        float moveX = Input.GetAxisRaw("Horizontal");
+        float moveY = Input.GetAxisRaw("Vertical");
+
+        // Normalize so diagonal isn’t faster
+        Vector2 moveDir = new Vector2(moveX, moveY).normalized;
+
+        // Move with physics
+        _rb.velocity = moveDir * _speed;
     }
 
-    public void LookDir(Vector3 dir)
+    public void LookDir()
     {
-        // Obtener la posición del mouse en el mundo
-        Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        mousePosition.z = 0f; // Asegúrate de que el z esté en 0 para 2D
+        Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
-        // Calcular la dirección desde el jugador hacia el mouse
-        Vector3 direction = mousePosition - transform.position;
+        // Direction from player to mouse
+        Vector2 direction = mousePos - transform.position;
 
-        // Calcular el ángulo en grados
+        // Angle in degrees
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
 
-        // Aplicar la rotación
-        transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle));
+        // Rotate (adjust -90 if your sprite points up instead of right)
+        transform.rotation = Quaternion.Euler(0, 0, angle - 90);
     }
 
     public void SetPosition(Vector3 pos)
     {
         transform.position = pos;
     }
+    #endregion
 }
