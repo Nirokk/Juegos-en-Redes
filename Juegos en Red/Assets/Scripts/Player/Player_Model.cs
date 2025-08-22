@@ -5,6 +5,10 @@ using UnityEngine;
 
 public class Player_Model : MonoBehaviour, IMove_Look
 {
+    
+    Rigidbody _rb;
+
+
     [Header("Photon")]
     public PhotonView _photonView;
     public TMPro.TextMeshPro _playerName;
@@ -16,9 +20,16 @@ public class Player_Model : MonoBehaviour, IMove_Look
     public int _maxLife;
     public int _currentLife;
     public float _speed;
-    public Rigidbody2D _rb;
+    
 
-
+    private void Awake()
+    {
+        _rb = GetComponent<Rigidbody>();
+    }
+    private void Start()
+    {
+        _currentLife = _maxLife;
+    }
     #region Pun methods
     public void BanPlayer()
     {

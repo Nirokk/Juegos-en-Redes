@@ -4,22 +4,26 @@ using UnityEngine;
 
 public class Player_Controller : MonoBehaviour
 {
-    public Player_Model _model;
+    Player_Model _model;
+    Player_View _view;
 
 
 
-    // Start is called before the first frame update
-    void Start()
+    private void Awake()
     {
-        
+        _model = GetComponent<Player_Model>();
+        _view = GetComponent<Player_View>();
     }
 
-    // Update is called once per frame
     void Update()
     {
-        
+        if (_model._photonView.IsMine && !_model._banned)
+        {
+            _model.Move();
+            _model.LookDir();
+            
+        }
     }
 
 
-    
 }
