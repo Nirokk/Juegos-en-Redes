@@ -6,14 +6,13 @@ using UnityEngine;
 public class Player_Model : MonoBehaviour, IMove_Look
 {
     
-    Rigidbody _rb;
+    Rigidbody2D _rb;
 
 
     [Header("Photon")]
     public PhotonView _photonView;
     public TMPro.TextMeshPro _playerName;
     public bool _banned;
-
 
 
     [Header("Player Stats")]
@@ -24,7 +23,7 @@ public class Player_Model : MonoBehaviour, IMove_Look
 
     private void Awake()
     {
-        _rb = GetComponent<Rigidbody>();
+        _rb = GetComponent<Rigidbody2D>();
     }
     private void Start()
     {
