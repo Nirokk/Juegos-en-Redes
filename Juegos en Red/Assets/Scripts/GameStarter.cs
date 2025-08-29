@@ -6,6 +6,7 @@ using UnityEngine;
 public class GameStarter : MonoBehaviourPunCallbacks
 {
     public PhotonView playerPrefab;
+    public Transform[] spawnPoints;
 
     private void Start()
     {
@@ -15,8 +16,13 @@ public class GameStarter : MonoBehaviourPunCallbacks
     public override void OnJoinedRoom()
     {
         GameObject player = PhotonNetwork.Instantiate("Player", new Vector3 (0,0), Quaternion.identity);
-
+        
     }
     
-    
+    public void NewSpawnPoint()
+    {
+        if (spawnPoints.Length == 0) return;
+        
+        // Implement spawn point logic here
+    }
 }

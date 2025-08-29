@@ -237,6 +237,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerPrefab: {fileID: 0}
+  spawnPoints: []
 --- !u!4 &2042006805
 Transform:
   m_ObjectHideFlags: 0

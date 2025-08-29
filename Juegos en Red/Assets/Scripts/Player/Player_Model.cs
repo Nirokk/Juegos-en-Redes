@@ -11,7 +11,7 @@ public class Player_Model : MonoBehaviour, IMove_Look
 
     [Header("Photon")]
     public PhotonView _photonView;
-    public TMPro.TextMeshPro _playerName;
+    [SerializeField] private TMPro.TextMeshPro _playerName;
     public bool _banned;
 
 
@@ -23,7 +23,9 @@ public class Player_Model : MonoBehaviour, IMove_Look
 
     private void Awake()
     {
+        _photonView = GetComponent<PhotonView>();
         _rb = GetComponent<Rigidbody2D>();
+        _playerName = GetComponentInChildren<TMPro.TextMeshPro>();
     }
     private void Start()
     {

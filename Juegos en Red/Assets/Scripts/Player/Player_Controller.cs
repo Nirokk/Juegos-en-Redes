@@ -11,8 +11,13 @@ public class Player_Controller : MonoBehaviour
 
     private void Awake()
     {
-        _model = GetComponent<Player_Model>();
-        _view = GetComponent<Player_View>();
+        if (_model._photonView.IsMine && !_model._banned)
+        {
+            _model = GetComponent<Player_Model>();
+            _view = GetComponent<Player_View>();
+
+        }
+
     }
 
     void Update()
