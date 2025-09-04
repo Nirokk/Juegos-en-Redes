@@ -11,18 +11,25 @@ public class Player_Controller : MonoBehaviour
 
     private void Awake()
     {
-        if (_model._photonView.IsMine && !_model._banned)
-        {
-            _model = GetComponent<Player_Model>();
-            _view = GetComponent<Player_View>();
+       
+    }
 
-        }
+    private void Start()
+    {
+        
+        _model = GetComponent<Player_Model>();
+        _view = GetComponent<Player_View>();
+
+         
+        
+
+        
 
     }
 
     void Update()
     {
-        if (_model._photonView.IsMine && !_model._banned)
+        if (_model._photonView.IsMine )
         {
             _model.Move();
             _model.LookDir();
