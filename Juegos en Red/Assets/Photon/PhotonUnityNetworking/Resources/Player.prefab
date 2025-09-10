@@ -373,6 +373,7 @@ GameObject:
   - component: {fileID: 8003552681681110812}
   - component: {fileID: 7673226864320419767}
   - component: {fileID: 2192501191784368229}
+  - component: {fileID: 3770199635947836039}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -603,6 +604,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   nombreJugador: {fileID: 369262616558028171}
+--- !u!114 &3770199635947836039
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7713019922240019572}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d6f72905639bad4fa6c7dde2602b024, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentWeapon: {fileID: 11400000, guid: 90454ad90fa32ea46a0ff46c5a4773ae, type: 2}
 --- !u!1 &7751363641786683991
 GameObject:
   m_ObjectHideFlags: 0
@@ -686,7 +700,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 1
+  m_PresetInfoIsWorld: 0
 --- !u!114 &5449557295279346063
 MonoBehaviour:
   m_ObjectHideFlags: 0
