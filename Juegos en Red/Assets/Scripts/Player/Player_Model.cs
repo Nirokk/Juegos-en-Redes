@@ -5,20 +5,32 @@ using UnityEngine;
 
 public class Player_Model : MonoBehaviour, IMove_Look
 {
+    
+    Rigidbody2D _rb;
+
+
     [Header("Photon")]
     public PhotonView _photonView;
-    public TMPro.TextMeshPro _playerName;
+    [SerializeField] private TMPro.TextMeshPro _playerName;
     public bool _banned;
-
 
 
     [Header("Player Stats")]
     public int _maxLife;
     public int _currentLife;
     public float _speed;
-    public Rigidbody2D _rb;
+    
 
-
+    private void Awake()
+    {
+        _photonView = GetComponent<PhotonView>();
+        _rb = GetComponent<Rigidbody2D>();
+        _playerName = GetComponentInChildren<TMPro.TextMeshPro>();
+    }
+    private void Start()
+    {
+        _currentLife = _maxLife;
+    }
     #region Pun methods
     public void BanPlayer()
     {
