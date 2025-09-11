@@ -15,4 +15,4 @@ MonoBehaviour:
   damage: 10
   speed: 10
   lifetime: 2
-  prefabBullet: {fileID: 0}
+  prefabBullet: {fileID: 6534063158699660262, guid: 01ab412d22d1dee408d290a794732c20, type: 3}

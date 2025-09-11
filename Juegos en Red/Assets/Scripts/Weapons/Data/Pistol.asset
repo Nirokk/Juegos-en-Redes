@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Pistol
   m_EditorClassIdentifier: 
   weaponName: Pistola
-  bulletType: {fileID: 0}
+  bulletType: {fileID: 11400000, guid: 95ac979b80f10294095f2c21326e7e25, type: 2}
   fireRate: 2
   magazineSize: 6
   reloadTime: 1.5
