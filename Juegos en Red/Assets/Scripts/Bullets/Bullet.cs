@@ -23,13 +23,15 @@ public class Bullet : MonoBehaviourPun
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        Debug.Log(this.gameObject.name);
+
         if (!photonView.IsMine) return; // Solo el dueño procesa el impacto
 
         // Ejemplo: si choca contra un jugador
         var target = collision.GetComponent<Player_Model>();
         if (target != null)
         {
-            target._currentLife -= (int)damage;
+            target._photonView.RPC("TakeDamage", RpcTarget.All, (int)damage);
         }
 
         PhotonNetwork.Destroy(gameObject);
