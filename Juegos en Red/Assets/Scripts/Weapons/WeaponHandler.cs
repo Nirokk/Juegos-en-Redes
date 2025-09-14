@@ -5,37 +5,34 @@ using Photon.Pun.Demo.Asteroids;
 public class WeaponHandler : MonoBehaviourPun
 {
     [Header("Weapon")]
-    public WeaponData currentWeapon;   // Asignás tu pistola desde el inspector
+    public WeaponData currentWeapon;
 
     private float nextFireTime = 0f;
     private int bulletsLeft;
     private bool isReloading = false;
 
+    private BulletPool pool;
+
     void Start()
     {
         bulletsLeft = currentWeapon.magazineSize;
+        pool = GetComponentInChildren<BulletPool>(); // pool del jugador
     }
 
     void Update()
     {
-        if (!photonView.IsMine) return; // Solo control local
+        if (!photonView.IsMine) return;
 
-        // Disparo
-        if (Input.GetMouseButton(0) && !isReloading) // click izq
-        {
+        if (Input.GetMouseButton(0) && !isReloading)
             TryShoot();
-        }
 
-        // Recarga manual
         if (Input.GetKeyDown(KeyCode.R) && !isReloading && bulletsLeft < currentWeapon.magazineSize)
-        {
             StartCoroutine(Reload());
-        }
     }
 
     void TryShoot()
     {
-        if (Time.time < nextFireTime) return; // respeta fireRate
+        if (Time.time < nextFireTime) return;
 
         if (bulletsLeft > 0)
         {
@@ -43,7 +40,7 @@ public class WeaponHandler : MonoBehaviourPun
         }
         else
         {
-            StartCoroutine(Reload()); // recarga automática al vaciar cargador
+            StartCoroutine(Reload());
         }
     }
 
@@ -52,27 +49,17 @@ public class WeaponHandler : MonoBehaviourPun
         nextFireTime = Time.time + 1f / currentWeapon.fireRate;
         bulletsLeft--;
 
-        // Instanciar bala en red
-        GameObject bullet = PhotonNetwork.Instantiate(
-            currentWeapon.bulletType.prefabBullet.name,
-            transform.position,
-            transform.rotation
-        );
+        GameObject bullet = pool.GetBullet(transform.position, transform.rotation);
 
-        // Asignar stats de la bala
-        bullet.GetComponent<Bullet>().Initialize(currentWeapon.bulletType);
+        if (bullet != null)
+            bullet.GetComponent<Bullet>().Initialize(currentWeapon.bulletType);
     }
 
     System.Collections.IEnumerator Reload()
     {
         isReloading = true;
-        Debug.Log("Reloading...");
-
         yield return new WaitForSeconds(currentWeapon.reloadTime);
-
         bulletsLeft = currentWeapon.magazineSize;
         isReloading = false;
-
-        Debug.Log("Reload Complete");
     }
 }
