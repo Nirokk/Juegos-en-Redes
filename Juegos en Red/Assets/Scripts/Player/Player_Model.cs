@@ -55,10 +55,10 @@ public class Player_Model : MonoBehaviour, IMove_Look
 
     public void LookDir()
     {
-        Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-
+        //Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector3 mousePos = Camera.main.ScreenToViewportPoint(Input.mousePosition);
         // Direction from player to mouse
-        Vector2 direction = mousePos - transform.position;
+        Vector2 direction = mousePos - new Vector3(0.5f , 0.5f,0);
 
         // Angle in degrees
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
