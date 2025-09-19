@@ -19,6 +19,7 @@ public class MainMenuLauncher : MonoBehaviourPunCallbacks
     {
         connectionButton.onClick.AddListener(ConnectToServer);
         inputField.onValueChanged.AddListener(VerifyName);
+        
     }
 
     private void VerifyName(string newName)
@@ -38,9 +39,11 @@ public class MainMenuLauncher : MonoBehaviourPunCallbacks
 
     public void ConnectToServer ()
     {
-        PhotonNetwork.NickName = nickname;
-        PhotonNetwork.ConnectUsingSettings();
+
+        NetworkManager.Instance.ConnectToServer(nickname);
         connectionButton.interactable = false;
+
+        
     }
 
     public override void OnConnectedToMaster()

@@ -1,4 +1,5 @@
 using Photon.Pun;
+using Photon.Pun.Demo.PunBasics;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -71,5 +72,28 @@ public class Player_Model : MonoBehaviour, IMove_Look
     {
         transform.position = pos;
     }
+
+    [PunRPC]
+    public void TakeDamage(int amount)
+    {
+        _currentLife -= amount;
+        print(_currentLife);
+        if (_currentLife <= 0)
+        {
+            Die();
+        }
+    }
+
+    private void Die()
+    {
+        if (!_photonView.IsMine) return;
+
+        // Avisamos al GameManager que este jugador murió
+        GameManager.Instance.photonView.RPC("PlayerDied", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer.ActorNumber);
+
+        // Desactivar jugador (queda "muerto" hasta la próxima ronda)
+        gameObject.SetActive(false);
+    }
+
     #endregion
 }

@@ -5,18 +5,31 @@ using UnityEngine;
 
 public class GameStarter : MonoBehaviourPunCallbacks
 {
-    public PhotonView playerPrefab;
+    private PhotonView playerPrefab;
     public Transform[] spawnPoints;
+    public LayerMask localPlayerLayer;
+    public LayerMask onlinePlayerLayer;
 
     private void Start()
     {
         PhotonNetwork.JoinRandomOrCreateRoom();
+
     }
 
     public override void OnJoinedRoom()
     {
-        GameObject player = PhotonNetwork.Instantiate("NewPlayer", new Vector3 (0,0), Quaternion.identity);
-        
+        GameObject player = PhotonNetwork.Instantiate("Player", new Vector3 (0,0), Quaternion.identity);
+
+        playerPrefab = player.GetComponent<PhotonView>();
+
+        if (playerPrefab.IsMine)
+        {
+            player.layer = 3;
+        }
+        else
+        {
+            player.layer = 7;
+        }
     }
     
     public void NewSpawnPoint()
@@ -25,4 +38,5 @@ public class GameStarter : MonoBehaviourPunCallbacks
         
         // Implement spawn point logic here
     }
+    
 }
