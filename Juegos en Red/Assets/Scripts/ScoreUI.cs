@@ -1,0 +1,38 @@
+using UnityEngine;
+using TMPro;
+
+public class ScoreUI : MonoBehaviour
+{
+    [SerializeField] private TextMeshProUGUI teamAScoreText;
+    [SerializeField] private TextMeshProUGUI teamBScoreText;
+
+    private void Start()
+    {
+        UpdateScoreUI();
+    }
+
+    private void OnEnable()
+    {
+        // cada vez que cambian los puntos, se actualiza la UI
+        if (ScoreManager.Instance != null)
+        {
+            ScoreManager.Instance.OnScoreUpdated += UpdateScoreUI;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (ScoreManager.Instance != null)
+        {
+            ScoreManager.Instance.OnScoreUpdated -= UpdateScoreUI;
+        }
+    }
+
+    private void UpdateScoreUI()
+    {
+        if (ScoreManager.Instance == null) return;
+
+        teamAScoreText.text = $"{ScoreManager.Instance.GetScore(0)}";
+        teamBScoreText.text = $"{ScoreManager.Instance.GetScore(1)}";
+    }
+}
