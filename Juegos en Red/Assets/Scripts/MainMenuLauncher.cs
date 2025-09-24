@@ -40,15 +40,22 @@ public class MainMenuLauncher : MonoBehaviourPunCallbacks
     public void ConnectToServer ()
     {
 
-        NetworkManager.Instance.ConnectToServer(nickname);
+        NetworkManager.Instance.ConnectToServer(GoToLobby);
+        NetworkManager.Instance.SetNickname(nickname);
         connectionButton.interactable = false;
 
         
     }
-
-    public override void OnConnectedToMaster()
+    public void GoToLobby()
     {
-        SceneManager.LoadScene("GameScene");
+        SceneManager.LoadScene("LobbyScene");
     }
+
+
+    //Antes usabamos el callback de Photon, pero ahora usamos el de NetworkManager
+    //public override void OnConnectedToMaster()
+    //{
+    //    SceneManager.LoadScene("GameScene");
+    //}
 
 }

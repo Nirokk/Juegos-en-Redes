@@ -1,12 +1,21 @@
+using System;
 using Photon.Pun;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Realtime;
 
 public class NetworkManager :  MonoBehaviourPun
 {
-    private int alivePlayersTeamA;
-    private int alivePlayersTeamB;
+    private int _alivePlayersTeamA;
+    private int _alivePlayersTeamB;
+
+
+    public PhotonManager photonManager;
+
+    private Action OnConnectedToServer;
+    public Action OnJoinedRoom;
+    private List<RoomInfo> rooms = new List<RoomInfo>();
 
     private static NetworkManager _instance;
     public static NetworkManager Instance { get => _instance; set => _instance = value; }
@@ -23,31 +32,89 @@ public class NetworkManager :  MonoBehaviourPun
             DontDestroyOnLoad(this.gameObject);
         }
     }
-
-    public void ConnectToServer(string nickname)
+    private void Start()
     {
-        PhotonNetwork.NickName = nickname;
-        PhotonNetwork.ConnectUsingSettings();
-        
+        photonManager.Init(CheckIfJoinedRoom,CheckRoomCreated);
+    }
+    #region Connection
+    public void SetNickname(string nickname)
+    {
+        photonManager.SetNickName(nickname);
+    }
+    public void ConnectToServer(Action connectionCallback = null) // callback para cuando se conecta
+    {
+        photonManager.ConnectToServer(CheckConnectionToServer);
+        OnConnectedToServer += connectionCallback;
+    }
+    private void CheckConnectionToServer()
+    {
+        OnConnectedToServer?.Invoke(); //si no es null, invoca
+    }
+    #endregion
+
+    #region Scenes
+    public void LoadSceneForEveryone(string sceneName) //carga una escena para todos los jugadores
+    {
+        photonManager.LoadSceneForAllPlayers(sceneName);
     }
 
+    #endregion
+    #region Rooms
+
+    public string GetCurrentRoomName()
+    {
+        string name = photonManager.GetCurrentRoom().Name;
+        return name;
+    }
+    private void CheckIfJoinedRoom()
+    {
+        OnJoinedRoom?.Invoke();
+    }
+    public void CreateRoom(string roomName)
+    {
+        photonManager.CreateRoom(roomName);
+        //photonManager.CreateRoom(roomName, CheckRoomCreated);
+        
+
+    }
+    private void CheckRoomCreated(List<RoomInfo> rooms)
+    {
+        this.rooms = rooms;
+        
+    }
+    public List<RoomInfo> GetAllRooms()
+    {
+        return rooms;
+    }
+
+    public void JoinLobby()
+    {
+        photonManager.JoinLobby();
+    }
+    public void JoinSelectedRoom(string roomName)
+    {
+        photonManager.JoinRoom(roomName);
+    }
+    
+    #endregion
+    #region Teams Controller
     public void RegisterTeams(int teamAPlayers, int teamBPlayers)
     {
-        alivePlayersTeamA = teamAPlayers;
-        alivePlayersTeamB = teamBPlayers;
+        _alivePlayersTeamA = teamAPlayers;
+        _alivePlayersTeamB = teamBPlayers;
     }
 
     [PunRPC]
     public void PlayerDied(int actorNumber, int team)
     {
         if (team == 0) // Team A
-            alivePlayersTeamA--;
+            _alivePlayersTeamA--;
         else if (team == 1) // Team B
-            alivePlayersTeamB--;
+            _alivePlayersTeamB--;
 
-        if (alivePlayersTeamA == 0 || alivePlayersTeamB == 0)
+        if (_alivePlayersTeamA == 0 || _alivePlayersTeamB == 0)
         {
-            string winner = alivePlayersTeamA > 0 ? "A" : "B";
+            string winner = _alivePlayersTeamA > 0 ? "A" : "B";
             photonView.RPC("EndRound", RpcTarget.All, winner);
         }
     }
@@ -73,7 +140,8 @@ public class NetworkManager :  MonoBehaviourPun
         }
 
         // Resetear contadores (ejemplo: todos vivos de nuevo)
-        alivePlayersTeamA = 2; // reemplazar con la cantidad real de jugadores en A
-        alivePlayersTeamB = 2; // reemplazar con la cantidad real de jugadores en B
+        _alivePlayersTeamA = 2; // reemplazar con la cantidad real de jugadores en A
+        _alivePlayersTeamB = 2; // reemplazar con la cantidad real de jugadores en B
     }
+    #endregion
 }
