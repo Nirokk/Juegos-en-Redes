@@ -48,7 +48,7 @@ public class MainMenuLauncher : MonoBehaviourPunCallbacks
     }
     public void GoToLobby()
     {
-        SceneManager.LoadScene("LobbyScene");
+        SceneManager.LoadScene("GameScene");
     }
 
 

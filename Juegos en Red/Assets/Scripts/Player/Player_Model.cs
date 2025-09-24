@@ -74,22 +74,23 @@ public class Player_Model : MonoBehaviour, IMove_Look
     }
 
     [PunRPC]
-    public void TakeDamage(int amount)
+    public void TakeDamage(int amount, int attackerId)
     {
         _currentLife -= amount;
         print(_currentLife);
+
         if (_currentLife <= 0)
         {
-            Die();
+            Die(attackerId);
         }
     }
 
-    private void Die()
+    private void Die(int killerId)
     {
         if (!_photonView.IsMine) return;
 
         // Avisamos al GameManager que este jugador murió
-        GameManager.Instance.photonView.RPC("PlayerDied", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer.ActorNumber);
+        GameManager.Instance.photonView.RPC("PlayerDied", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer.ActorNumber, killerId);
 
         // Desactivar jugador (queda "muerto" hasta la próxima ronda)
         gameObject.SetActive(false);

@@ -60,7 +60,8 @@ public class WeaponHandler : MonoBehaviourPun
         );
 
         // Asignar stats de la bala
-        bullet.GetComponent<Bullet>().Initialize(currentWeapon.bulletType);
+        int shooterId = PhotonNetwork.LocalPlayer.ActorNumber;
+        bullet.GetComponent<Bullet>().Initialize(currentWeapon.bulletType, shooterId);
     }
 
     System.Collections.IEnumerator Reload()
