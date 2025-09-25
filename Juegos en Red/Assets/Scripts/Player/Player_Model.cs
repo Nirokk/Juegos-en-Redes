@@ -90,12 +90,13 @@ public class Player_Model : MonoBehaviour, IMove_Look
     private void Die()
     {
         if (!_photonView.IsMine) return;
-
+        Debug.Log("me mori yo");
         // Avisamos al GameManager que este jugador murió
-        GameManager.Instance.photonView.RPC("PlayerDied", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer.ActorNumber);
+        //NetworkManager.Instance.photonView.RPC("BanPlayer", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer.ActorNumber);
 
         // Desactivar jugador (queda "muerto" hasta la próxima ronda)
         gameObject.SetActive(false);
+        
     }
 
     #endregion
