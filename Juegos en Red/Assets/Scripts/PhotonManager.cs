@@ -11,13 +11,12 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     public Action OnJoinedRoomEvent;
 
     public Action<List<RoomInfo>> OnNewRoomCreated;
-
+    public List<RoomInfo> rooms = new List<RoomInfo>();
 
     public void Init(Action onJoinRoom, Action<List<RoomInfo>> onRoomCreated)
     {
         OnJoinedRoomEvent += onJoinRoom;
         OnNewRoomCreated += onRoomCreated;
-        
     }
 
     #region servers
@@ -58,7 +57,13 @@ public class PhotonManager : MonoBehaviourPunCallbacks
 
         PhotonNetwork.CreateRoom(roomName, roomOptions);
         
-        
+
+    }
+    public override void OnCreatedRoom()
+    {
+        Debug.Log("Room created successfully");
+        rooms.Add(PhotonNetwork.CurrentRoom);
+
     }
     public override void OnRoomListUpdate(List<RoomInfo> roomList)
     {

@@ -2,6 +2,7 @@ using Photon.Realtime;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class RoomsPanel : MonoBehaviour
@@ -16,20 +17,28 @@ public class RoomsPanel : MonoBehaviour
     void Start()
     {
         InvokeRepeating(nameof(PopulateRoomsList), 0f, 5f);
+        NetworkManager.Instance.OnJoinedRoom += GoToTeamSelection;
     }
 
     //Note: Consider doing this only after the player ask for it
     public void PopulateRoomsList()
     {
+        
         ClearRoomsList();
 
         List<RoomInfo> allRooms = NetworkManager.Instance.GetAllRooms();
+       
         Debug.Log("Number of rooms available: " + allRooms.Count);
         foreach (RoomInfo room in allRooms)
         {
             RoomItemUI roomUI = Instantiate(roomUIPrefab, contentTransform);
             roomUI.SetUp(room.Name, HandleJoinRoomRequest);
             roomsUI.Add(roomUI);
+            if (!roomUIPrefab.gameObject.activeSelf)
+            {
+                roomUIPrefab.gameObject.SetActive(true);
+            }
+                
         }
 
     }
@@ -47,5 +56,13 @@ public class RoomsPanel : MonoBehaviour
     private void HandleJoinRoomRequest(string roomName)
     {
         NetworkManager.Instance.JoinSelectedRoom(roomName);
+
+    }
+
+
+    private void GoToTeamSelection()
+    {
+        SceneManager.LoadScene("GameScene");
+        //mandar ambos players al team selection pero para la segunda entrega duh
     }
 }

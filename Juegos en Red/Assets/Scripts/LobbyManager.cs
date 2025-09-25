@@ -43,7 +43,9 @@ public class LobbyManager : MonoBehaviour
 
     private void GoToTeamSelection()
     {
-        _roomName.text = NetworkManager.Instance.GetCurrentRoomName();
-        SceneManager.LoadScene("TeamSelection");
+        
+        SceneManager.LoadScene("GameScene");
+        //mandar ambos players al team selection pero para la segunda entrega duh
+        
     }
 }
