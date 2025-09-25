@@ -25,6 +25,14 @@ public class ScoreManager : MonoBehaviourPunCallbacks
         }
     }
 
+    void Start()
+    {
+        if (PhotonNetwork.IsMasterClient)
+        {
+            ScoreManager.Instance.InitScores();
+        }
+    }
+
     // Inicializa los scores al empezar la partida
     public void InitScores()
     {
@@ -77,8 +85,14 @@ public class ScoreManager : MonoBehaviourPunCallbacks
     {
         if (PhotonNetwork.CurrentRoom == null) return 0;
 
-        if (team == 0) return (int)PhotonNetwork.CurrentRoom.CustomProperties[TEAM_A_SCORE];
-        else return (int)PhotonNetwork.CurrentRoom.CustomProperties[TEAM_B_SCORE];
+        var props = PhotonNetwork.CurrentRoom.CustomProperties;
+
+        if (team == 0 && props.ContainsKey(TEAM_A_SCORE))
+            return (int)props[TEAM_A_SCORE];
+        if (team == 1 && props.ContainsKey(TEAM_B_SCORE))
+            return (int)props[TEAM_B_SCORE];
+
+        return 0; // default si no está inicializado
     }
 
     // Este callback se ejecuta en todos los jugadores cuando cambian propiedades

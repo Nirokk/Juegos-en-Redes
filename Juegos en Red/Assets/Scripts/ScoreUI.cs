@@ -6,11 +6,6 @@ public class ScoreUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI teamAScoreText;
     [SerializeField] private TextMeshProUGUI teamBScoreText;
 
-    private void Start()
-    {
-        UpdateScoreUI();
-    }
-
     private void OnEnable()
     {
         // cada vez que cambian los puntos, se actualiza la UI
@@ -18,6 +13,7 @@ public class ScoreUI : MonoBehaviour
         {
             ScoreManager.Instance.OnScoreUpdated += UpdateScoreUI;
         }
+        UpdateScoreUI();
     }
 
     private void OnDisable()
