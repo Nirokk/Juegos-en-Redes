@@ -25,9 +25,4 @@ public class CtrlJuegoMP : MonoBehaviour
 
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }

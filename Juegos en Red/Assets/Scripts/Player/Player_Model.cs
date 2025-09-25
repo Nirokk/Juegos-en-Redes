@@ -31,6 +31,7 @@ public class Player_Model : MonoBehaviour, IMove_Look
     private void Start()
     {
         _currentLife = _maxLife;
+        Debug.Log(_rb);
     }
     #region Pun methods
     public void BanPlayer()
@@ -52,6 +53,8 @@ public class Player_Model : MonoBehaviour, IMove_Look
 
         // Move with physics
         _rb.velocity = moveDir * _speed;
+        Debug.Log("Velocity: " + _rb.velocity);
+
     }
 
     public void LookDir()
