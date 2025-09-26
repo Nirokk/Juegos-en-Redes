@@ -101,12 +101,13 @@ public class Player_Model : MonoBehaviour, IMove_Look
     //    ScoreManager.Instance.OnScoreUpdated += 
 
     //}
-    public void TakeDamage(int amount, int killerActorNumber)
+    public void TakeDamage(int amount, PhotonMessageInfo info)
     {
         _currentLife -= amount;
 
         if (_currentLife <= 0)
         {
+            int killerActorNumber = info.Sender.ActorNumber;
             Die(killerActorNumber);
         }
     }
