@@ -1,5 +1,6 @@
 using Photon.Pun;
 using Photon.Pun.Demo.PunBasics;
+using Photon.Realtime;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -77,26 +78,61 @@ public class Player_Model : MonoBehaviour, IMove_Look
     }
 
     [PunRPC]
-    public void TakeDamage(int amount)
+    //public void TakeDamage(int amount)
+    //{
+    //    _currentLife -= amount;
+    //    print(_currentLife);
+    //    if (_currentLife <= 0)
+    //    {
+    //        Die();
+    //        Debug.Log("Player Died");
+    //    }
+    //}
+
+    //private void Die()
+    //{
+    //    if (!_photonView.IsMine) return;
+    //    Debug.Log("me mori yo");
+    //    // Avisamos al GameManager que este jugador murió
+    //    //NetworkManager.Instance.photonView.RPC("BanPlayer", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer.ActorNumber);
+
+    //    // Desactivar jugador (queda "muerto" hasta la próxima ronda)
+    //    Destroy(gameObject);
+    //    ScoreManager.Instance.OnScoreUpdated += 
+
+    //}
+    public void TakeDamage(int amount, int killerActorNumber)
     {
         _currentLife -= amount;
-        print(_currentLife);
+
         if (_currentLife <= 0)
         {
-            Die();
+            Die(killerActorNumber);
         }
     }
 
-    private void Die()
+    private void Die(int killerActorNumber)
     {
         if (!_photonView.IsMine) return;
-        Debug.Log("me mori yo");
-        // Avisamos al GameManager que este jugador murió
-        //NetworkManager.Instance.photonView.RPC("BanPlayer", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer.ActorNumber);
 
-        // Desactivar jugador (queda "muerto" hasta la próxima ronda)
-        gameObject.SetActive(false);
-        
+        Debug.Log("Morí yo");
+
+        // Obtener equipos
+        string victimTeam = PhotonNetwork.LocalPlayer.CustomProperties["team"].ToString();
+        Player killerPlayer = PhotonNetwork.CurrentRoom.GetPlayer(killerActorNumber);
+        string killerTeam = killerPlayer.CustomProperties["team"].ToString();
+
+        int victimIndex = victimTeam == "TeamA" ? 0 : 1;
+        int killerIndex = killerTeam == "TeamA" ? 0 : 1;
+
+        // Actualizar score
+        if (ScoreManager.Instance != null)
+        {
+            ScoreManager.Instance.AddScore(killerIndex, victimIndex);
+        }
+
+        // Destruir jugador
+        PhotonNetwork.Destroy(gameObject);
     }
 
     #endregion
