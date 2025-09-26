@@ -29,7 +29,7 @@ public class ScoreManager : MonoBehaviourPunCallbacks
     {
         if (PhotonNetwork.IsMasterClient)
         {
-            ScoreManager.Instance.InitScores();
+            InitScores();
         }
     }
 
@@ -50,10 +50,15 @@ public class ScoreManager : MonoBehaviourPunCallbacks
     // Llamar cuando un jugador mata a otro
     public void AddScore(int killerTeam, int victimTeam)
     {
-        if (!PhotonNetwork.IsMasterClient) return; // solo el master actualiza
+        if (!PhotonNetwork.IsMasterClient || PhotonNetwork.CurrentRoom == null) return;
 
-        int teamAScore = (int)PhotonNetwork.CurrentRoom.CustomProperties[TEAM_A_SCORE];
-        int teamBScore = (int)PhotonNetwork.CurrentRoom.CustomProperties[TEAM_B_SCORE];
+        int teamAScore = PhotonNetwork.CurrentRoom.CustomProperties.ContainsKey(TEAM_A_SCORE)
+            ? (int)PhotonNetwork.CurrentRoom.CustomProperties[TEAM_A_SCORE]
+            : 0;
+
+        int teamBScore = PhotonNetwork.CurrentRoom.CustomProperties.ContainsKey(TEAM_B_SCORE)
+            ? (int)PhotonNetwork.CurrentRoom.CustomProperties[TEAM_B_SCORE]
+            : 0;
 
         if (killerTeam == victimTeam)
         {
@@ -74,10 +79,9 @@ public class ScoreManager : MonoBehaviourPunCallbacks
             { TEAM_B_SCORE, teamBScore }
         };
 
-        if (OnScoreUpdated != null)
-            OnScoreUpdated.Invoke();
-
         PhotonNetwork.CurrentRoom.SetCustomProperties(scoreProps);
+
+        OnScoreUpdated?.Invoke();
     }
 
     // Método para obtener el score actual de cada equipo
@@ -102,8 +106,7 @@ public class ScoreManager : MonoBehaviourPunCallbacks
             propertiesThatChanged.ContainsKey(TEAM_B_SCORE))
         {
             Debug.Log($"Score actualizado → A: {GetScore(0)} | B: {GetScore(1)}");
-            if (OnScoreUpdated != null)
-                OnScoreUpdated.Invoke();
+            OnScoreUpdated?.Invoke();
         }
     }
 }

@@ -8,7 +8,6 @@ public class ScoreUI : MonoBehaviour
 
     private void OnEnable()
     {
-        // cada vez que cambian los puntos, se actualiza la UI
         if (ScoreManager.Instance != null)
         {
             ScoreManager.Instance.OnScoreUpdated += UpdateScoreUI;
