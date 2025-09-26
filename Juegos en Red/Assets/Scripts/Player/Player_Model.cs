@@ -117,6 +117,7 @@ public class Player_Model : MonoBehaviour, IMove_Look
     }
 
 
+
     [PunRPC]
     public void ReportKillToMaster(int killerActorNumber, int victimActorNumber)
     {
