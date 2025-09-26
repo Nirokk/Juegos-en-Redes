@@ -133,7 +133,8 @@ public class Player_Model : MonoBehaviour, IMove_Look
         }
 
         // Destruir jugador
-        PhotonNetwork.Destroy(gameObject);
+        //PhotonNetwork.Destroy(gameObject);
+        gameObject.SetActive(false);
     }
 
     #endregion
