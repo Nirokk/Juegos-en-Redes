@@ -20,14 +20,14 @@ public class Player_Controller : MonoBehaviour
         _photonView= GetComponent<PhotonView>();
         _model = GetComponent<Player_Model>();
         _view = GetComponent<Player_View>();
-        Debug.Log(_model);
+        
     }
 
     void FixedUpdate()
     {
         if (_photonView.IsMine )
         {
-            Debug.Log("Is Mine");
+            
             _model.Move();
             _model.LookDir();    
         }
