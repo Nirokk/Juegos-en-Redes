@@ -1,4 +1,4 @@
-using Photon.Pun;
+﻿using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
 
@@ -77,18 +77,18 @@ public class Player_Model : MonoBehaviour, IMove_Look
     {
         if (!_photonView.IsMine) return;
 
-        Debug.Log("Mor� yo");
+        Debug.Log("Morí yo");
 
-        // Victim team
+        // Obtener equipo de la víctima
         string victimTeam = PhotonNetwork.LocalPlayer.CustomProperties.ContainsKey("team")
             ? PhotonNetwork.LocalPlayer.CustomProperties["team"].ToString()
             : "TeamA";
 
-        // Killer
+        // Obtener al killer
         Player killerPlayer = PhotonNetwork.CurrentRoom.GetPlayer(killerActorNumber);
         if (killerPlayer == null)
         {
-            Debug.LogWarning($"? No encontr� al killer con ActorNumber {killerActorNumber}");
+            Debug.LogWarning($"No encontré al killer con ActorNumber {killerActorNumber}");
             return;
         }
 
@@ -96,33 +96,20 @@ public class Player_Model : MonoBehaviour, IMove_Look
             ? killerPlayer.CustomProperties["team"].ToString()
             : "TeamA";
 
-        int victimIndex = victimTeam == "TeamA" ? 0 : 1;
-        int killerIndex = killerTeam == "TeamA" ? 0 : 1;
+        // ✅ Aumentar score del killer
+        var killerProps = new ExitGames.Client.Photon.Hashtable();
+        int currentKills = killerPlayer.CustomProperties.ContainsKey("kills")
+            ? (int)killerPlayer.CustomProperties["kills"]
+            : 0;
+        killerProps["kills"] = currentKills + 1;
+        killerPlayer.SetCustomProperties(killerProps);
 
-        // Score
-        if (ScoreManager.Instance != null)
-        {
-            ScoreManager.Instance.AddScore(killerIndex, victimIndex);
+        Debug.Log($"{killerPlayer.NickName} ahora tiene {killerProps["kills"]} kills");
 
-            PhotonView masterPV = ScoreManager.Instance.GetComponent<PhotonView>();
-            if (masterPV != null)
-            {
-                masterPV.RPC(
-                    "ReportKillToMaster",
-                    RpcTarget.MasterClient,
-                    killerActorNumber,               // killer
-                    _photonView.Owner.ActorNumber    // victim
-                );
-            }
-        }
-        else
-        {
-            Debug.LogError("? ScoreManager.Instance es NULL en esta escena.");
-        }
-
-        // "Muerte" ? desactivar
-        gameObject.SetActive(false);
+        // ✅ Destruir solo mi propio objeto (soy la víctima)
+        PhotonNetwork.Destroy(gameObject);
     }
+
 
     [PunRPC]
     public void ReportKillToMaster(int killerActorNumber, int victimActorNumber)

@@ -80,7 +80,14 @@ public class GameStarter : MonoBehaviourPunCallbacks
         {
             Debug.Log($"Jugador {targetPlayer.NickName} está en {changedProps["team"]}");
         }
+
+        if (changedProps.ContainsKey("kills"))
+        {
+            Debug.Log($"[SCORE] {targetPlayer.NickName} ahora tiene {changedProps["kills"]} kills");
+            // Aquí actualizas la UI del scoreboard
+        }
     }
+
 
 
     //public void NewSpawnPoint()
