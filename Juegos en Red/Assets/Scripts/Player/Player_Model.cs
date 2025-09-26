@@ -135,7 +135,34 @@ public class Player_Model : MonoBehaviour, IMove_Look
         // Destruir jugador
         //PhotonNetwork.Destroy(gameObject);
         gameObject.SetActive(false);
-    }
 
+
+
+
+        if (!_photonView.IsMine) return;
+
+        PhotonView masterPV = ScoreManager.Instance.GetComponent<PhotonView>();
+        masterPV.RPC(
+            "ReportKillToMaster",
+            RpcTarget.MasterClient,
+            PhotonNetwork.LocalPlayer.ActorNumber, // killer
+            _photonView.Owner.ActorNumber          // víctima
+        );
+    }
+    public void ReportKillToMaster(int killerActorNumber, int victimActorNumber)
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+
+        Player killerPlayer = PhotonNetwork.CurrentRoom.GetPlayer(killerActorNumber);
+        Player victimPlayer = PhotonNetwork.CurrentRoom.GetPlayer(victimActorNumber);
+
+        string killerTeam = killerPlayer.CustomProperties["team"].ToString();
+        string victimTeam = victimPlayer.CustomProperties["team"].ToString();
+
+        int killerIndex = killerTeam == "TeamA" ? 0 : 1;
+        int victimIndex = victimTeam == "TeamA" ? 0 : 1;
+
+        ScoreManager.Instance.AddScore(killerIndex, victimIndex);
+    }
     #endregion
 }
