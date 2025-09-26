@@ -85,6 +85,7 @@ public class GameStarter : MonoBehaviourPunCallbacks
         {
             Debug.Log($"[SCORE] {targetPlayer.NickName} ahora tiene {changedProps["kills"]} kills");
             // Aquí actualizas la UI del scoreboard
+
         }
     }
 

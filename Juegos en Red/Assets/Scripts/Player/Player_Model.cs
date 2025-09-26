@@ -79,7 +79,7 @@ public class Player_Model : MonoBehaviour, IMove_Look
 
         Debug.Log("Morí yo");
 
-        // Obtener equipo de la víctima
+        // Equipo de la víctima
         string victimTeam = PhotonNetwork.LocalPlayer.CustomProperties.ContainsKey("team")
             ? PhotonNetwork.LocalPlayer.CustomProperties["team"].ToString()
             : "TeamA";
@@ -96,7 +96,7 @@ public class Player_Model : MonoBehaviour, IMove_Look
             ? killerPlayer.CustomProperties["team"].ToString()
             : "TeamA";
 
-        // ✅ Aumentar score del killer
+        // 🔹 Sumar kills al killer
         var killerProps = new ExitGames.Client.Photon.Hashtable();
         int currentKills = killerPlayer.CustomProperties.ContainsKey("kills")
             ? (int)killerPlayer.CustomProperties["kills"]
@@ -104,9 +104,15 @@ public class Player_Model : MonoBehaviour, IMove_Look
         killerProps["kills"] = currentKills + 1;
         killerPlayer.SetCustomProperties(killerProps);
 
-        Debug.Log($"{killerPlayer.NickName} ahora tiene {killerProps["kills"]} kills");
+        // 🔹 Actualizar score del equipo
+        if (ScoreManager.Instance != null)
+        {
+            int killerTeamIndex = killerTeam == "TeamA" ? 0 : 1;
+            int victimTeamIndex = victimTeam == "TeamA" ? 0 : 1;
+            ScoreManager.Instance.AddScore(killerTeamIndex, victimTeamIndex);
+        }
 
-        // ✅ Destruir solo mi propio objeto (soy la víctima)
+        // 🔹 Destruir al jugador muerto (solo él mismo)
         PhotonNetwork.Destroy(gameObject);
     }
 
