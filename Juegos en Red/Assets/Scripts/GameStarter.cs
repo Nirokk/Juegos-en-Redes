@@ -89,6 +89,10 @@ public class GameStarter : MonoBehaviourPunCallbacks
         }
     }
 
+    public override void OnLeftRoom()
+    {
+        PhotonNetwork.Destroy(_player);
+    }
 
 
     //public void NewSpawnPoint()

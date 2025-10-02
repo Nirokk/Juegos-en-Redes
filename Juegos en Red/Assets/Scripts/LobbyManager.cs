@@ -1,3 +1,4 @@
+using Photon.Pun;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -6,11 +7,12 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 
-public class LobbyManager : MonoBehaviour
+public class LobbyManager : MonoBehaviourPunCallbacks
 {
 
     [SerializeField] private TMP_InputField _roomName;
     [SerializeField] private Button _createRoom;
+    private bool _joinedToLobby;
 
     // Start is called before the first frame update
     void Start()
@@ -28,11 +30,16 @@ public class LobbyManager : MonoBehaviour
         {
             _createRoom.interactable = false;
         }
-        if (_roomName.text.Length >= 1 && !_createRoom.interactable)
+        if (_roomName.text.Length >= 1 && !_createRoom.interactable && _joinedToLobby)
         {
             _createRoom.interactable = true;
         }
         _roomName.text = newName;
+    }
+
+    private void OnJoinLobby()
+    {
+        _joinedToLobby = true;
     }
 
     private void CreateRoomOnClicked()
@@ -43,8 +50,8 @@ public class LobbyManager : MonoBehaviour
 
     private void GoToTeamSelection()
     {
-        
-        SceneManager.LoadScene("GameScene");
+        NetworkManager.Instance.LoadSceneForEveryone("GameScene");
+        //SceneManager.LoadScene("GameScene");
         //mandar ambos players al team selection pero para la segunda entrega duh
         
     }

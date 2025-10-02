@@ -19,6 +19,11 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         OnNewRoomCreated += onRoomCreated;
     }
 
+    private void OnApplicationQuit()
+    {
+       PhotonNetwork.Disconnect();
+    }
+
     #region servers
 
     public void SetNickName(string nickname) //establece el nickname del jugador

@@ -34,10 +34,8 @@ public class RoomsPanel : MonoBehaviour
             RoomItemUI roomUI = Instantiate(roomUIPrefab, contentTransform);
             roomUI.SetUp(room.Name, HandleJoinRoomRequest);
             roomsUI.Add(roomUI);
-            if (!roomUIPrefab.gameObject.activeSelf)
-            {
-                roomUIPrefab.gameObject.SetActive(true);
-            }
+            roomUI.gameObject.SetActive(true);
+           
                 
         }
 
