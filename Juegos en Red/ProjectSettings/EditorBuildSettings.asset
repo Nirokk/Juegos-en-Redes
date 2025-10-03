@@ -20,4 +20,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/TeamSelection.unity
     guid: 491cd31cc5089274e82f459b516b4112
+  - enabled: 1
+    path: Assets/Scenes/PONG.unity
+    guid: 5405e7ad2eb14bb49ad2a79e09640d53
   m_configObjects: {}

@@ -96,4 +96,9 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         Debug.Log("OnJoinedRoom");
     }
     #endregion
+
+    public override void OnPlayerEnteredRoom(Player newPlayer)
+    {
+        base.OnPlayerEnteredRoom(newPlayer);
+    }
 }

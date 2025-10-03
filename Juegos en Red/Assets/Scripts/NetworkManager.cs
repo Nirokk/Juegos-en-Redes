@@ -56,6 +56,7 @@ public class NetworkManager :  MonoBehaviourPun
     public void LoadSceneForEveryone(string sceneName) //carga una escena para todos los jugadores
     {
         photonManager.LoadSceneForAllPlayers(sceneName);
+        Debug.Log("ESCENA:" + sceneName);
     }
 
     #endregion

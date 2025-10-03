@@ -45,7 +45,7 @@ public class GameStarter : MonoBehaviourPunCallbacks
         }
 
 
-        _player = PhotonNetwork.Instantiate("NewPlayer", spawnPos, Quaternion.identity);
+        _player = PhotonNetwork.Instantiate("Pong-Player", spawnPos, Quaternion.identity);
         _photonView = _player.GetComponentInChildren<PhotonView>();
         Debug.Log(_player);
 

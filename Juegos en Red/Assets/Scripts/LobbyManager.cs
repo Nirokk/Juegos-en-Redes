@@ -37,7 +37,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         _roomName.text = newName;
     }
 
-    private void OnJoinLobby()
+    public override void OnJoinedLobby()
     {
         _joinedToLobby = true;
     }
@@ -50,7 +50,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 
     private void GoToTeamSelection()
     {
-        NetworkManager.Instance.LoadSceneForEveryone("GameScene");
+        NetworkManager.Instance.LoadSceneForEveryone("PONG");
         //SceneManager.LoadScene("GameScene");
         //mandar ambos players al team selection pero para la segunda entrega duh
         
