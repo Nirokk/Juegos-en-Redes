@@ -15,6 +15,10 @@ public class NetworkManager :  MonoBehaviourPun
 
     private Action OnConnectedToServer;
     public Action OnJoinedRoom;
+
+    public Action OnPlayerEnteredRoom;
+    public Action OnPlayerLeftRoom;
+
     private List<RoomInfo> rooms = new List<RoomInfo>();
 
     private static NetworkManager _instance;
@@ -34,7 +38,7 @@ public class NetworkManager :  MonoBehaviourPun
     }
     private void Start()
     {
-        photonManager.Init(CheckIfJoinedRoom,CheckRoomCreated);
+        photonManager.Init(CheckIfJoinedRoom, CheckRoomCreated, HandleNewPlayerInRoom, HandlePlayerLeftRoom);
     }
     #region Connection
     public void SetNickname(string nickname)
@@ -51,7 +55,25 @@ public class NetworkManager :  MonoBehaviourPun
         OnConnectedToServer?.Invoke(); //si no es null, invoca
     }
     #endregion
+    #region Players
 
+    public Dictionary<int, Player> GetPlayersInRoom()
+    {
+        return photonManager.GetPlayersInRoom();
+    }
+
+
+    public void HandleNewPlayerInRoom()
+    {
+        OnPlayerEnteredRoom?.Invoke();
+    }
+
+    public void HandlePlayerLeftRoom()
+    {
+        OnPlayerLeftRoom?.Invoke();
+    }
+
+    #endregion
     #region Scenes
     public void LoadSceneForEveryone(string sceneName) //carga una escena para todos los jugadores
     {

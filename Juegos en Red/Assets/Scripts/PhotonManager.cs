@@ -10,13 +10,19 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     public Action OnConnectedToServer;
     public Action OnJoinedRoomEvent;
 
+    public Action OnPlayerEnteredRoomEvent;
+    public Action OnPlayerLeftRoomEvent;
+
     public Action<List<RoomInfo>> OnNewRoomCreated;
     public List<RoomInfo> rooms = new List<RoomInfo>();
 
-    public void Init(Action onJoinRoom, Action<List<RoomInfo>> onRoomCreated)
+    public void Init(Action onJoinRoom, Action<List<RoomInfo>> onRoomCreated, Action onPlayerEnterRomCallback, Action onPlayerLeftCallback)
     {
         OnJoinedRoomEvent += onJoinRoom;
         OnNewRoomCreated += onRoomCreated;
+
+        OnPlayerEnteredRoomEvent += onPlayerEnterRomCallback;
+        OnPlayerLeftRoomEvent += onPlayerLeftCallback;
     }
 
     private void OnApplicationQuit()
@@ -48,7 +54,22 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         PhotonNetwork.LoadLevel(sceneName);
     }
     #endregion
+    #region players
+    public Dictionary<int, Player> GetPlayersInRoom()
+    {
+        return PhotonNetwork.CurrentRoom.Players;
+    }
 
+    public override void OnPlayerEnteredRoom(Player newPlayer)
+    {
+        OnPlayerEnteredRoomEvent?.Invoke();
+    }
+
+    public override void OnPlayerLeftRoom(Player otherPlayer)
+    {
+        OnPlayerLeftRoomEvent?.Invoke();
+    }
+    #endregion
     #region rooms
     public void CreateRoom(string roomName)
     {

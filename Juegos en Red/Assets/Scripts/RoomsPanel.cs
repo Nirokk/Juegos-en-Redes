@@ -60,7 +60,7 @@ public class RoomsPanel : MonoBehaviour
 
     private void GoToTeamSelection()
     {
-        SceneManager.LoadScene("GameScene");
+        SceneManager.LoadScene("TeamSelection");
         //mandar ambos players al team selection pero para la segunda entrega duh
     }
 }
