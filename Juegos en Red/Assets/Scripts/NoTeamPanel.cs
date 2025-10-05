@@ -6,9 +6,13 @@ using UnityEngine;
 public class NoTeamPanel : MonoBehaviour
 {
     [SerializeField] private PlayerIcon playerPrefab;
-    [SerializeField] private Transform contentTransform;
+    [SerializeField] private Transform noTeamPanel;
+    [SerializeField] private Transform aTeamPanel;
+    [SerializeField] private Transform bTeamPanel;
+    
 
     private List<PlayerIcon> playersUI = new List<PlayerIcon>();
+    private const string TEAM_KEY = "team";
 
     void Start()
     {
@@ -20,19 +24,49 @@ public class NoTeamPanel : MonoBehaviour
         UpdatePlayers();
     }
 
+    private void Update()
+    {
+        UpdatePlayers();
+    }
     private void UpdatePlayers()
     {
+
         ClearPlayers();
 
         Dictionary<int, Player> players = NetworkManager.Instance.GetPlayersInRoom();
-        print("Players count: " + players.Count);
+        Debug.Log("Players count: " + players.Count);
 
-        foreach (KeyValuePair<int, Player> player in players)
+        foreach (KeyValuePair<int, Player> kv in players)
         {
-            PlayerIcon playerUI = Instantiate(playerPrefab, contentTransform);
-            playerUI.SetUp(player.Value);
-            playersUI.Add(playerUI);
+            Player p = kv.Value;
+            string team = null;
 
+            if (p.CustomProperties.TryGetValue(TEAM_KEY, out object teamObj))
+            {
+                team = teamObj?.ToString();
+                Debug.Log($"Player {p.NickName} is in team {team}");
+
+            }
+
+
+            PlayerIcon icon;
+            if (team == "A")
+            {
+                icon = Instantiate(playerPrefab, aTeamPanel);
+                icon.GetComponent<UnityEngine.UI.Image>().color = Color.red;
+            }
+            else if (team == "B")
+            {
+                icon = Instantiate(playerPrefab, bTeamPanel);
+                icon.GetComponent<UnityEngine.UI.Image>().color = Color.blue;
+            }
+            else
+            {
+                icon = Instantiate(playerPrefab, noTeamPanel);
+            }
+
+            icon.SetUp(p);
+            playersUI.Add(icon);
         }
 
 
@@ -40,9 +74,16 @@ public class NoTeamPanel : MonoBehaviour
 
     private void ClearPlayers()
     {
+        //foreach (PlayerIcon playerItemUI in playersUI)
+        //{
+        //    Destroy(playerItemUI.gameObject);
+        //}
+        //playersUI.Clear();
+
         foreach (PlayerIcon playerItemUI in playersUI)
         {
-            Destroy(playerItemUI.gameObject);
+            if (playerItemUI != null)
+                Destroy(playerItemUI.gameObject);
         }
         playersUI.Clear();
     }

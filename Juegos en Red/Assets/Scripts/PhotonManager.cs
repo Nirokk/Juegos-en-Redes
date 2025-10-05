@@ -69,6 +69,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     {
         OnPlayerLeftRoomEvent?.Invoke();
     }
+    
     #endregion
     #region rooms
     public void CreateRoom(string roomName)
