@@ -23,6 +23,8 @@ public class PhotonManager : MonoBehaviourPunCallbacks
 
         OnPlayerEnteredRoomEvent += onPlayerEnterRomCallback;
         OnPlayerLeftRoomEvent += onPlayerLeftCallback;
+
+        PhotonNetwork.AutomaticallySyncScene = true;
     }
 
     private void OnApplicationQuit()

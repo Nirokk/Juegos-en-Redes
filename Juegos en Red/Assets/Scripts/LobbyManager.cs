@@ -50,9 +50,9 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 
     private void GoToTeamSelection()
     {
-        NetworkManager.Instance.LoadSceneForEveryone("TeamSelection");
-        //SceneManager.LoadScene("GameScene");
+        //NetworkManager.Instance.LoadSceneForEveryone("TeamSelection");
+        SceneManager.LoadScene("TeamSelection");
         //mandar ambos players al team selection pero para la segunda entrega duh
-        
+
     }
 }
