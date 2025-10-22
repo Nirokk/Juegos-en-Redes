@@ -7,12 +7,8 @@ using UnityEngine;
 
 public class GameStarter : MonoBehaviourPunCallbacks
 {
-    public PhotonView _photonView;
     public Transform[] spawnPoints;
-    //public LayerMask localPlayerLayer;
-    //public LayerMask onlinePlayerLayer;
-    private GameObject _player;
-    TeamSelectionManager _teamSelectionManager;
+    public Player _player { get; private set; }
 
     [Header("Spawn Points - Team A")]
     public List<Transform> teamAspawnPointsList;
@@ -20,37 +16,26 @@ public class GameStarter : MonoBehaviourPunCallbacks
     [Header("Spawn Points - Team B")]
     public List<Transform> teamBspawnPointsList;
 
-    private const string TEAM_KEY = "team";
-
-    private void Awake()
-    {
 
 
-    }
     private void Start()
     {
-        _photonView = this.gameObject.GetComponent<PhotonView>();
-        _teamSelectionManager = FindObjectOfType<TeamSelectionManager>();
         SpawnPlayer();
     }
 
     public void SpawnPlayer()
     {
-        if (_photonView.IsMine)
+        if ((string)PhotonNetwork.LocalPlayer.CustomProperties["team"] == "A")
         {
-            if (_teamSelectionManager.teamA.Contains(_photonView.Owner.UserId))
-            {
-                _player = PhotonNetwork.Instantiate("NewPlayer",teamAspawnPointsList[0].position, Quaternion.identity);
-            }
-            if (_teamSelectionManager.teamB.Contains(_photonView.Owner.UserId))
-            {
-                _player = PhotonNetwork.Instantiate("NewPlayer", teamBspawnPointsList[0].position, Quaternion.identity);
-            }
-
+            GameObject playerObject = PhotonNetwork.Instantiate("NewPlayer", teamAspawnPointsList[Random.Range(0, teamAspawnPointsList.Count)].position, Quaternion.identity);
+            _player = PhotonNetwork.LocalPlayer;
+            
+            // Assign the local player reference
         }
-        else
+        else if ((string)PhotonNetwork.LocalPlayer.CustomProperties["team"] == "B")
         {
-            Debug.Log("lol");
+            GameObject playerObject = PhotonNetwork.Instantiate("NewPlayer", teamBspawnPointsList[Random.Range(0, teamBspawnPointsList.Count)].position, Quaternion.identity);
+            _player = PhotonNetwork.LocalPlayer; // Assign the local player reference
         }
     }
 
@@ -149,10 +134,6 @@ public class GameStarter : MonoBehaviourPunCallbacks
     //    }
     //}
 
-    public override void OnLeftRoom()
-    {
-        PhotonNetwork.Destroy(_player);
-    }
 
 
     //public void NewSpawnPoint()
