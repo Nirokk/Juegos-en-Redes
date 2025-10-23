@@ -1,14 +1,18 @@
 ﻿using Photon.Pun;
 using Photon.Realtime;
+using TMPro;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 public class Player_Model : MonoBehaviour, IMove_Look
 {
     Rigidbody2D _rb;
+    [SerializeField] private Light2D _playerLight;
+    [SerializeField] private Light2D _playerLight2;
 
     [Header("Photon")]
     public PhotonView _photonView;
-    [SerializeField] private TMPro.TextMeshPro _playerName;
+    [SerializeField] private TextMeshProUGUI _playerName;
     public bool _banned;
 
     [Header("Player Stats")]
@@ -20,12 +24,16 @@ public class Player_Model : MonoBehaviour, IMove_Look
     {
         _photonView = GetComponent<PhotonView>();
         _rb = GetComponent<Rigidbody2D>();
-        _playerName = GetComponentInChildren<TMPro.TextMeshPro>();
+       
+       
+
     }
 
     private void Start()
     {
         _currentLife = _maxLife;
+        DesactivateLights();
+        DesactivateName();
     }
 
     #region Pun methods
@@ -75,6 +83,33 @@ public class Player_Model : MonoBehaviour, IMove_Look
             Die(killerActorNumber);
         }
     }
+
+
+    private void DesactivateLights()
+    {
+        if(!_photonView.IsMine)
+        {
+            _playerLight.enabled = false;
+            _playerLight2.enabled = false;
+            
+        }
+    }
+    private void DesactivateName()
+    {
+        if (_photonView.IsMine)
+            return; 
+
+        var _myActorId = _photonView.Owner.ActorNumber;
+        var _thisPlayer = PhotonNetwork.CurrentRoom.GetPlayer(_myActorId);
+        var _myTeam = (string)_thisPlayer.CustomProperties["team"];
+        string localTeam = (string)PhotonNetwork.LocalPlayer.CustomProperties["team"];
+        if (localTeam != _myTeam)
+        {
+            _playerName.enabled = false;
+        }
+        
+    }
+   
 
     private void Die(int killerActorNumber)
     {

@@ -437,6 +437,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 8003552681681110812, guid: ae719e473a3f94b4dbf63e05200e18b4, type: 3}
+      propertyPath: _playerName
+      value: 
+      objectReference: {fileID: 7699104178254529167}
     - target: {fileID: 8424639577207747078, guid: ae719e473a3f94b4dbf63e05200e18b4, type: 3}
       propertyPath: sceneViewId
       value: 0
@@ -448,3 +452,14 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 1081818769221113783, guid: ae719e473a3f94b4dbf63e05200e18b4, type: 3}
   m_PrefabInstance: {fileID: 8054498894078510852}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &7699104178254529167 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 369262616558028171, guid: ae719e473a3f94b4dbf63e05200e18b4, type: 3}
+  m_PrefabInstance: {fileID: 8054498894078510852}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
