@@ -118,7 +118,6 @@ public class Player_Model : MonoBehaviour, IMove_Look
 
         Debug.Log($"Morí yo ({PhotonNetwork.LocalPlayer.NickName})");
 
-        // Obtener al killer desde el número de actor
         Player killerPlayer = PhotonNetwork.CurrentRoom.GetPlayer(killerActorNumber);
         if (killerPlayer == null)
         {
@@ -126,20 +125,26 @@ public class Player_Model : MonoBehaviour, IMove_Look
             return;
         }
 
-        // 🔹 Avisar al master quién mató a quién
-        // (solo si tenemos PhotonView válido)
+        // 🔹 Enviar RPC ANTES de destruir
         PhotonView pv = GetComponent<PhotonView>();
         if (pv != null)
         {
             Debug.Log($"[Die] Enviando RPC ReportKillToMaster -> killer:{killerPlayer.NickName} victim:{PhotonNetwork.LocalPlayer.NickName}");
             pv.RPC("ReportKillToMaster", RpcTarget.MasterClient, killerActorNumber, PhotonNetwork.LocalPlayer.ActorNumber);
+
+            // ⏱️ Esperar un frame antes de destruir para que el RPC se envíe
+            StartCoroutine(DestroyAfterRPC());
         }
         else
         {
             Debug.LogError("[Die] No se encontró PhotonView en el objeto del jugador.");
+            PhotonNetwork.Destroy(gameObject);
         }
+    }
 
-        // 🔹 Destruir al jugador muerto (solo él mismo)
+    private System.Collections.IEnumerator DestroyAfterRPC()
+    {
+        yield return new WaitForSeconds(0.1f); // pequeño delay
         PhotonNetwork.Destroy(gameObject);
     }
 
@@ -164,15 +169,15 @@ public class Player_Model : MonoBehaviour, IMove_Look
         string killerTeam = killerPlayer.CustomProperties.ContainsKey("team")
             ? (string)killerPlayer.CustomProperties["team"]
             : "Unknown";
-
         string victimTeam = victimPlayer.CustomProperties.ContainsKey("team")
             ? (string)victimPlayer.CustomProperties["team"]
             : "Unknown";
 
         Debug.Log($"[ReportKillToMaster] Killer:{killerPlayer.NickName}({killerTeam}) -> Victim:{victimPlayer.NickName}({victimTeam})");
 
-        int killerTeamIndex = killerTeam == "TeamA" ? 0 : 1;
-        int victimTeamIndex = victimTeam == "TeamA" ? 0 : 1;
+        // 🔧 CORREGIDO: Comparar con "A" y "B" en lugar de "TeamA" y "TeamB"
+        int killerTeamIndex = killerTeam == "A" ? 0 : 1;
+        int victimTeamIndex = victimTeam == "A" ? 0 : 1;
 
         ScoreManager.Instance.AddScore(killerTeamIndex, victimTeamIndex);
     }
