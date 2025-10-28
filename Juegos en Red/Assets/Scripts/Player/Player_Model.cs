@@ -134,21 +134,24 @@ public class Player_Model : MonoBehaviour, IMove_Look
             ? killerPlayer.CustomProperties["team"].ToString()
             : "TeamA";
 
-        // 🔹 Sumar kills al killer
-        var killerProps = new ExitGames.Client.Photon.Hashtable();
-        int currentKills = killerPlayer.CustomProperties.ContainsKey("kills")
-            ? (int)killerPlayer.CustomProperties["kills"]
-            : 0;
-        killerProps["kills"] = currentKills + 1;
-        killerPlayer.SetCustomProperties(killerProps);
+        //// 🔹 Sumar kills al killer
+        //var killerProps = new ExitGames.Client.Photon.Hashtable();
+        //int currentKills = killerPlayer.CustomProperties.ContainsKey("kills")
+        //    ? (int)killerPlayer.CustomProperties["kills"]
+        //    : 0;
+        //killerProps["kills"] = currentKills + 1;
+        //killerPlayer.SetCustomProperties(killerProps);
 
-        // 🔹 Actualizar score del equipo
-        if (ScoreManager.Instance != null)
-        {
-            int killerTeamIndex = killerTeam == "TeamA" ? 0 : 1;
-            int victimTeamIndex = victimTeam == "TeamA" ? 0 : 1;
-            ScoreManager.Instance.AddScore(killerTeamIndex, victimTeamIndex);
-        }
+        //// 🔹 Actualizar score del equipo
+        //if (ScoreManager.Instance != null)
+        //{
+        //    int killerTeamIndex = killerTeam == "TeamA" ? 0 : 1;
+        //    int victimTeamIndex = victimTeam == "TeamA" ? 0 : 1;
+        //    ScoreManager.Instance.AddScore(killerTeamIndex, victimTeamIndex);
+        //}
+
+        //Avisar al master quién mató a quién
+        _photonView.RPC("ReportKillToMaster", RpcTarget.MasterClient, killerActorNumber, PhotonNetwork.LocalPlayer.ActorNumber);
 
         // 🔹 Destruir al jugador muerto (solo él mismo)
         PhotonNetwork.Destroy(gameObject);
