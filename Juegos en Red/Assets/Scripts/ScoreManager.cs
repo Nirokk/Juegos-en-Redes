@@ -50,6 +50,7 @@ public class ScoreManager : MonoBehaviourPunCallbacks
     // Llamar cuando un jugador mata a otro
     public void AddScore(int killerTeam, int victimTeam)
     {
+        Debug.Log($"[AddScore] Master:{PhotonNetwork.IsMasterClient} | killerTeam:{killerTeam} | victimTeam:{victimTeam}");
         if (!PhotonNetwork.IsMasterClient || PhotonNetwork.CurrentRoom == null) return;
 
         int teamAScore = PhotonNetwork.CurrentRoom.CustomProperties.ContainsKey(TEAM_A_SCORE)

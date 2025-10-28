@@ -109,49 +109,35 @@ public class Player_Model : MonoBehaviour, IMove_Look
         }
         
     }
-   
+
 
     private void Die(int killerActorNumber)
     {
-        if (!_photonView.IsMine) return;
+        if (!_photonView.IsMine)
+            return;
 
-        Debug.Log("Morí yo");
+        Debug.Log($"Morí yo ({PhotonNetwork.LocalPlayer.NickName})");
 
-        // Equipo de la víctima
-        string victimTeam = PhotonNetwork.LocalPlayer.CustomProperties.ContainsKey("team")
-            ? PhotonNetwork.LocalPlayer.CustomProperties["team"].ToString()
-            : "TeamA";
-
-        // Obtener al killer
+        // Obtener al killer desde el número de actor
         Player killerPlayer = PhotonNetwork.CurrentRoom.GetPlayer(killerActorNumber);
         if (killerPlayer == null)
         {
-            Debug.LogWarning($"No encontré al killer con ActorNumber {killerActorNumber}");
+            Debug.LogWarning($"[Die] No encontré al killer con ActorNumber {killerActorNumber}");
             return;
         }
 
-        string killerTeam = killerPlayer.CustomProperties.ContainsKey("team")
-            ? killerPlayer.CustomProperties["team"].ToString()
-            : "TeamA";
-
-        //// 🔹 Sumar kills al killer
-        //var killerProps = new ExitGames.Client.Photon.Hashtable();
-        //int currentKills = killerPlayer.CustomProperties.ContainsKey("kills")
-        //    ? (int)killerPlayer.CustomProperties["kills"]
-        //    : 0;
-        //killerProps["kills"] = currentKills + 1;
-        //killerPlayer.SetCustomProperties(killerProps);
-
-        //// 🔹 Actualizar score del equipo
-        //if (ScoreManager.Instance != null)
-        //{
-        //    int killerTeamIndex = killerTeam == "TeamA" ? 0 : 1;
-        //    int victimTeamIndex = victimTeam == "TeamA" ? 0 : 1;
-        //    ScoreManager.Instance.AddScore(killerTeamIndex, victimTeamIndex);
-        //}
-
-        //Avisar al master quién mató a quién
-        _photonView.RPC("ReportKillToMaster", RpcTarget.MasterClient, killerActorNumber, PhotonNetwork.LocalPlayer.ActorNumber);
+        // 🔹 Avisar al master quién mató a quién
+        // (solo si tenemos PhotonView válido)
+        PhotonView pv = GetComponent<PhotonView>();
+        if (pv != null)
+        {
+            Debug.Log($"[Die] Enviando RPC ReportKillToMaster -> killer:{killerPlayer.NickName} victim:{PhotonNetwork.LocalPlayer.NickName}");
+            pv.RPC("ReportKillToMaster", RpcTarget.MasterClient, killerActorNumber, PhotonNetwork.LocalPlayer.ActorNumber);
+        }
+        else
+        {
+            Debug.LogError("[Die] No se encontró PhotonView en el objeto del jugador.");
+        }
 
         // 🔹 Destruir al jugador muerto (solo él mismo)
         PhotonNetwork.Destroy(gameObject);
@@ -159,28 +145,36 @@ public class Player_Model : MonoBehaviour, IMove_Look
 
 
 
+
     [PunRPC]
     public void ReportKillToMaster(int killerActorNumber, int victimActorNumber)
     {
-        if (!PhotonNetwork.IsMasterClient) return;
+        if (!PhotonNetwork.IsMasterClient)
+            return;
 
-        Player killerPlayer = PhotonNetwork.CurrentRoom.GetPlayer(killerActorNumber);
-        Player victimPlayer = PhotonNetwork.CurrentRoom.GetPlayer(victimActorNumber);
+        Photon.Realtime.Player killerPlayer = PhotonNetwork.CurrentRoom.GetPlayer(killerActorNumber);
+        Photon.Realtime.Player victimPlayer = PhotonNetwork.CurrentRoom.GetPlayer(victimActorNumber);
 
-        if (killerPlayer == null || victimPlayer == null) return;
+        if (killerPlayer == null || victimPlayer == null)
+        {
+            Debug.LogWarning("[ReportKillToMaster] Killer o Victim no encontrados en la sala.");
+            return;
+        }
 
         string killerTeam = killerPlayer.CustomProperties.ContainsKey("team")
-            ? killerPlayer.CustomProperties["team"].ToString()
-            : "TeamA";
+            ? (string)killerPlayer.CustomProperties["team"]
+            : "Unknown";
 
         string victimTeam = victimPlayer.CustomProperties.ContainsKey("team")
-            ? victimPlayer.CustomProperties["team"].ToString()
-            : "TeamA";
+            ? (string)victimPlayer.CustomProperties["team"]
+            : "Unknown";
 
-        int killerIndex = killerTeam == "TeamA" ? 0 : 1;
-        int victimIndex = victimTeam == "TeamA" ? 0 : 1;
+        Debug.Log($"[ReportKillToMaster] Killer:{killerPlayer.NickName}({killerTeam}) -> Victim:{victimPlayer.NickName}({victimTeam})");
 
-        ScoreManager.Instance?.AddScore(killerIndex, victimIndex);
+        int killerTeamIndex = killerTeam == "TeamA" ? 0 : 1;
+        int victimTeamIndex = victimTeam == "TeamA" ? 0 : 1;
+
+        ScoreManager.Instance.AddScore(killerTeamIndex, victimTeamIndex);
     }
     #endregion
 }
