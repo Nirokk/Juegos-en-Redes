@@ -114,11 +114,9 @@ public class MatchTimer : MonoBehaviourPunCallbacks
     private void ReturnToLobby()
     {
         Time.timeScale = 1f;
-        PhotonNetwork.LeaveRoom();
+        PhotonNetwork.AutomaticallySyncScene = true;
+        SceneManager.LoadScene("TeamSelection");
     }
 
-    public override void OnLeftRoom()
-    {
-        SceneManager.LoadScene("LobbyScene");
-    }
+    
 }
