@@ -13,6 +13,7 @@ public class MainMenuLauncher : MonoBehaviourPunCallbacks
     public Button connectionButton;
     private const string nicknameKey = "playerNickname";
     private string nickname;
+    
 
     // Start is called before the first frame update
     void Start()
@@ -20,6 +21,7 @@ public class MainMenuLauncher : MonoBehaviourPunCallbacks
         connectionButton.onClick.AddListener(ConnectToServer);
         inputField.onValueChanged.AddListener(VerifyName);
         
+
     }
 
     private void VerifyName(string newName)
@@ -35,11 +37,12 @@ public class MainMenuLauncher : MonoBehaviourPunCallbacks
         }
 
         nickname = newName;
+        
     }
 
     public void ConnectToServer ()
     {
-
+        LootLockerBoostTrap.SetPlayerName(nickname);
         NetworkManager.Instance.ConnectToServer(GoToLobby);
         NetworkManager.Instance.SetNickname(nickname);
         connectionButton.interactable = false;
