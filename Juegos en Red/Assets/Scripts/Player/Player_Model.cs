@@ -52,9 +52,9 @@ public class Player_Model : MonoBehaviour, IMove_Look
         float moveY = Input.GetAxisRaw("Vertical");
 
         Vector2 moveDir = new Vector2(moveX, moveY).normalized;
-        //_rb.velocity = moveDir * _speed;
-        //moveDir *= _speed;
-        transform.position += (Vector3)(moveDir * _speed * Time.deltaTime);
+        _rb.velocity = moveDir * _speed;
+        moveDir *= _speed;
+        //transform.position += (Vector3)(moveDir * _speed * Time.deltaTime);
         
     }
 
