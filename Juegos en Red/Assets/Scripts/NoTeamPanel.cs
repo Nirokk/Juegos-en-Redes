@@ -10,7 +10,7 @@ public class NoTeamPanel : MonoBehaviour
     [SerializeField] private Transform aTeamPanel;
     [SerializeField] private Transform bTeamPanel;
     
-
+    
     private List<PlayerIcon> playersUI = new List<PlayerIcon>();
     private const string TEAM_KEY = "team";
 
