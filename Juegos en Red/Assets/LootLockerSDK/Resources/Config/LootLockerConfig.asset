@@ -16,14 +16,16 @@ MonoBehaviour:
   adminToken: 105ace1ceb61714b52121b5d7fb9efdf515f9d44
   domainKey: 8pms4wkk
   game_version: 1.0.0.0
-  sdk_version: 6.4.0
+  sdk_version: 6.5.0
   url: https://api.lootlocker.com/v1
   adminUrl: https://8pms4wkk.api.lootlocker.com/admin
   playerUrl: https://8pms4wkk.api.lootlocker.com/player
   userUrl: https://8pms4wkk.api.lootlocker.com/game
   baseUrl: https://8pms4wkk.api.lootlocker.com
   clientSideRequestTimeOut: 180
-  logLevel: 5
+  logLevel: 2
+  prettifyJson: 1
+  obfuscateLogs: 1
   logErrorsAsWarnings: 0
   logInBuilds: 0
   allowTokenRefresh: 1

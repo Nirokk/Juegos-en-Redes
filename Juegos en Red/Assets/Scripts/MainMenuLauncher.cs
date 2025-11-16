@@ -42,7 +42,7 @@ public class MainMenuLauncher : MonoBehaviourPunCallbacks
 
     public void ConnectToServer ()
     {
-        LootLockerBoostTrap.SetPlayerName(nickname);
+        //LootLockerBoostTrap.SetPlayerName(nickname);
         NetworkManager.Instance.ConnectToServer(GoToLobby);
         NetworkManager.Instance.SetNickname(nickname);
         connectionButton.interactable = false;
