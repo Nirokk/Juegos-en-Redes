@@ -385,6 +385,7 @@ GameObject:
   - component: {fileID: 8003552681681110812}
   - component: {fileID: 7673226864320419767}
   - component: {fileID: 2192501191784368229}
+  - component: {fileID: 6596242825594874704}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -525,6 +526,7 @@ MonoBehaviour:
   observableSearch: 2
   ObservedComponents:
   - {fileID: 5557015705306510721}
+  - {fileID: 6596242825594874704}
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
@@ -618,6 +620,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   nombreJugador: {fileID: 369262616558028171}
+--- !u!114 &6596242825594874704
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7713019922240019572}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a164e0b9a1886745aa03830c24fc6d0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  networkPosition: {x: 0, y: 0, z: 0}
 --- !u!1 &7751363641786683991
 GameObject:
   m_ObjectHideFlags: 0
@@ -801,3 +816,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentWeapon: {fileID: 11400000, guid: 90454ad90fa32ea46a0ff46c5a4773ae, type: 2}
+  grenadePrefab: {fileID: 0}
