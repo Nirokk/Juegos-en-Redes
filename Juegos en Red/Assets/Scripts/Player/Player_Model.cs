@@ -25,8 +25,6 @@ public class Player_Model : MonoBehaviour, IMove_Look
         _photonView = GetComponent<PhotonView>();
         _rb = GetComponent<Rigidbody2D>();
        
-       
-
     }
 
     private void Start()
@@ -125,14 +123,14 @@ public class Player_Model : MonoBehaviour, IMove_Look
             return;
         }
 
-        // 🔹 Enviar RPC ANTES de destruir
+        // Enviar RPC ANTES de destruir
         PhotonView pv = GetComponent<PhotonView>();
         if (pv != null)
         {
             Debug.Log($"[Die] Enviando RPC ReportKillToMaster -> killer:{killerPlayer.NickName} victim:{PhotonNetwork.LocalPlayer.NickName}");
             pv.RPC("ReportKillToMaster", RpcTarget.MasterClient, killerActorNumber, PhotonNetwork.LocalPlayer.ActorNumber);
 
-            // ⏱️ Esperar un frame antes de destruir para que el RPC se envíe
+            // Esperar un frame antes de destruir para que el RPC se envíe
             StartCoroutine(DestroyAfterRPC());
         }
         else

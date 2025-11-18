@@ -11,9 +11,15 @@ public class WeaponHandler : MonoBehaviourPun
     private int bulletsLeft;
     private bool isReloading = false;
 
+    [Header("Grenade System")]
+    public GameObject grenadePrefab;
+    private Player_Inventory inventory;
+
     void Start()
     {
         bulletsLeft = currentWeapon.magazineSize;
+        inventory = GetComponentInParent<Player_Inventory>();
+        Debug.Log("INVENTORY ENCONTRADO = " + (inventory != null));
     }
 
     void Update()
@@ -31,7 +37,31 @@ public class WeaponHandler : MonoBehaviourPun
         {
             StartCoroutine(Reload());
         }
+
+        // Lanzar granada
+        if (Input.GetKeyDown(KeyCode.Q) && inventory != null)
+        {
+            if (inventory.TryUseGrenade())
+            {
+                Debug.Log("LANZANDO GRANADA!");
+                ThrowGrenade();
+            }
+        }
     }
+
+    void ThrowGrenade()
+    {
+        Vector3 spawnPos = transform.position + transform.up * 0.5f;
+
+        GameObject grenade = PhotonNetwork.Instantiate(
+            grenadePrefab.name,
+            spawnPos,
+            transform.rotation
+        );
+
+        grenade.GetComponent<GrenadeProjectile>().Initialize(transform.up, PhotonNetwork.LocalPlayer.ActorNumber);
+    }
+
 
     void TryShoot()
     {
