@@ -54,10 +54,23 @@ public class GrenadeProjectile : MonoBehaviourPun
                 }
             }
             // Antes de destruir la granada:
-            PhotonNetwork.Instantiate("ExplosionVFX", transform.position, Quaternion.identity);
-        }
+            GameObject fx = PhotonNetwork.Instantiate("ExplosionVFX", transform.position, Quaternion.identity);
+            // Escalar visual para coincidir con el radio de daño
+            SpriteRenderer sr = fx.GetComponentInChildren<SpriteRenderer>();
+            if (sr != null && sr.sprite != null)
+            {
+                float spriteWidth = sr.sprite.bounds.size.x;
+                float desiredDiameter = explosionRadius * 2f;
+                float scale = desiredDiameter / spriteWidth;
+                fx.transform.localScale = new Vector3(scale, scale, 1f);
+            }
+            else
+            {
+                Debug.LogWarning("El SpriteRenderer tiene sprite NULL, no se puede escalar aún.");
+            }
 
-        PhotonNetwork.Destroy(gameObject);
+            PhotonNetwork.Destroy(gameObject);
+        }
     }
 
 
