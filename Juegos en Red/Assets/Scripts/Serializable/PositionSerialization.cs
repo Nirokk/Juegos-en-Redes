@@ -17,20 +17,20 @@ public class PositionSerialization : MonoBehaviourPun, IPunObservable
     private void Start()
     {
         //networkPosition = GetComponent<RectTransform>();
-        _rb = GetComponent<Rigidbody2D>();
+        //_rb = GetComponent<Rigidbody2D>();
     }
 
     public void FixedUpdate()
     {
         if (!photonView.IsMine)
         {
-            _rb.position = Vector3.MoveTowards(_rb.position, networkPosition, Time.fixedDeltaTime * 10);
+            //_rb.position = Vector3.MoveTowards(_rb.position, networkPosition, Time.fixedDeltaTime * 10);
         }
     }
 
 
 
-
+    [PunRPC]
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
         if (stream.IsWriting)
