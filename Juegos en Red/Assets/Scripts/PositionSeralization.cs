@@ -1,49 +1,45 @@
 using UnityEngine;
 using Photon.Pun;
 
-
-[RequireComponent(typeof(PhotonView))]
-[RequireComponent(typeof(Rigidbody2D))]
 public class PositionSeralization : MonoBehaviourPun, IPunObservable
 {
-    public RectTransform networkPosition;
-    public Vector3 pos = Vector3.zero;
-    public PhotonView pv;
+    public Transform playerChild; // referencia al hijo “Player”
+    private Vector3 networkPos;
+    private float lerpRate = 10f;
 
-    //private Rigidbody2D _rb;
-
-
-
-    private void Start()
+    private void Awake()
     {
-        networkPosition = GetComponent<RectTransform>();
-        //_rb = GetComponent<Rigidbody2D>();
+        // si no arrastrás el hijo desde el inspector, lo buscamos por nombre
+        if (playerChild == null)
+        {
+            playerChild = transform.Find("Player");
+        }
+
+        networkPos = playerChild.position;
     }
 
-    //public void FixedUpdate()
-    //{
-    //    if (!photonView.IsMine)
-    //    {
-    //        _rb.position = Vector2.Lerp(_rb.position, networkPosition, Time.fixedDeltaTime * 10);
-    //    }
-    //}
-
-
-
+    private void Update()
+    {
+        if (!photonView.IsMine)
+        {
+            // interpolación suave del hijo
+            playerChild.position = Vector3.Lerp(
+                playerChild.position,
+                networkPos,
+                Time.deltaTime * lerpRate
+            );
+        }
+    }
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
         if (stream.IsWriting)
         {
-            stream.SendNext(networkPosition.position);
-            //stream.SendNext(transform.rotation);
-
+            stream.SendNext(playerChild.position);
         }
         else
         {
-            Vector3 aux = (Vector3)stream.ReceiveNext();
-            networkPosition.position = aux;
-            pos = aux;
+            networkPos = (Vector3)stream.ReceiveNext();
         }
     }
 }
