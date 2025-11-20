@@ -13,6 +13,8 @@ public class GrenadeProjectile : MonoBehaviourPun
     public float explosionRadius = 2.5f;
     public int damage = 40;
 
+    public GunFlash gunFlash;
+
     public void Initialize(Vector2 direction, int actorID)
     {
         dir = direction.normalized;
@@ -35,17 +37,19 @@ public class GrenadeProjectile : MonoBehaviourPun
     {
         yield return new WaitForSeconds(fuseTime);
         Explode();
+        
     }
 
     void Explode()
     {
+
         if (photonView.IsMine)
         {
             Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, explosionRadius);
 
             foreach (var hit in hits)
             {
-                Player_Model model = hit.GetComponentInParent<Player_Model>(); // <<< ESTE ES EL FIX
+                Player_Model model = hit.GetComponentInParent<Player_Model>();
 
                 if (model != null)
                 {
@@ -56,6 +60,8 @@ public class GrenadeProjectile : MonoBehaviourPun
             // Antes de destruir la granada:
             GameObject fx = PhotonNetwork.Instantiate("ExplosionVFX", transform.position, Quaternion.identity);
             // Escalar visual para coincidir con el radio de daño
+            if (gunFlash != null)
+                gunFlash.TriggerFlash();
             SpriteRenderer sr = fx.GetComponentInChildren<SpriteRenderer>();
             if (sr != null && sr.sprite != null)
             {
@@ -69,7 +75,9 @@ public class GrenadeProjectile : MonoBehaviourPun
                 Debug.LogWarning("El SpriteRenderer tiene sprite NULL, no se puede escalar aún.");
             }
 
-            PhotonNetwork.Destroy(gameObject);
+
+            //PhotonNetwork.Destroy(gameObject);
+            StartCoroutine(DestroyAfterDelay());
         }
     }
 
@@ -78,5 +86,11 @@ public class GrenadeProjectile : MonoBehaviourPun
     {
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, explosionRadius);
+    }
+
+    IEnumerator DestroyAfterDelay()
+    {
+        yield return new WaitForSeconds(3f);
+        PhotonNetwork.Destroy(gameObject);
     }
 }

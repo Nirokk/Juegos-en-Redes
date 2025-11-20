@@ -15,6 +15,8 @@ public class WeaponHandler : MonoBehaviourPun
     public GameObject grenadePrefab;
     private Player_Inventory inventory;
 
+    public GunFlash gunFlash;
+
     void Start()
     {
         bulletsLeft = currentWeapon.magazineSize;
@@ -79,8 +81,11 @@ public class WeaponHandler : MonoBehaviourPun
 
     void Shoot()
     {
-        nextFireTime = Time.time + 1f / currentWeapon.fireRate;
+        nextFireTime = Time.time + 0.2f / currentWeapon.fireRate;
         bulletsLeft--;
+
+        if (gunFlash != null)
+            gunFlash.TriggerFlash();
 
         // Instanciar bala en red
         GameObject bullet = PhotonNetwork.Instantiate(
