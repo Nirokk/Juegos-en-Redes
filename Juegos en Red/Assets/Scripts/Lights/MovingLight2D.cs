@@ -6,9 +6,10 @@ public class MovingLight2D : MonoBehaviourPun, IPunObservable
     public float moveSpeed = 3f;
 
     private Vector2 targetPos;   
-    private bool hasTarget = false; 
+    private bool hasTarget = false;
+    public UnityEngine.Rendering.Universal.Light2D spotLight;
 
-    
+
     public void SetTarget(Vector2 target)
     {
         targetPos = target;
@@ -17,7 +18,10 @@ public class MovingLight2D : MonoBehaviourPun, IPunObservable
 
     void Update()
     {
-        if (!hasTarget) return;  
+        if (!hasTarget) return;
+
+        if (MatchTimer.damagePhase)
+            spotLight.color = Color.red;
 
         transform.position = Vector2.MoveTowards(
             transform.position,
@@ -25,7 +29,7 @@ public class MovingLight2D : MonoBehaviourPun, IPunObservable
             moveSpeed * Time.deltaTime
         );
 
-        //  MODIFIED: Photon destroy + spawn from Master
+        //  photon stuff
         if (Vector2.Distance(transform.position, targetPos) < 0.1f)
         {
             if (PhotonNetwork.IsMasterClient)      
@@ -36,7 +40,6 @@ public class MovingLight2D : MonoBehaviourPun, IPunObservable
         }
     }
 
-    //  ADDED — Sync the target position
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
         if (stream.IsWriting)

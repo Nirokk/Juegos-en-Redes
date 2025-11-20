@@ -34,6 +34,12 @@ public class Bullet : MonoBehaviourPun
             target._photonView.RPC("TakeDamage", RpcTarget.All, (int)damage);
         }
 
-        PhotonNetwork.Destroy(gameObject);
+        if (!collision.CompareTag("Luz"))
+        {
+            PhotonNetwork.Destroy(gameObject);
+        }
+
+
+        //PhotonNetwork.Destroy(gameObject);
     }
 }

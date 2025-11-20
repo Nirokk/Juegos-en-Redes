@@ -10,8 +10,13 @@ public class LightDamageZone : MonoBehaviourPun
 
     private void OnTriggerStay2D(Collider2D other)
     {
+        //chequeas tiempo si es 30
+        if (!MatchTimer.damagePhase) return;
+
+        //sync
         if (!PhotonNetwork.IsMasterClient) return;   
 
+        //ref jugador
         Player_Model target = other.GetComponent<Player_Model>();
         if (target == null) return;
 
@@ -19,7 +24,7 @@ public class LightDamageZone : MonoBehaviourPun
 
         if (timer <= 0f)
         {
-            //  MODIFIED — correct RPC call with sender info
+            //RPC
             target._photonView.RPC("TakeDamage", RpcTarget.All, (int)damage);
 
             timer = damageInterval;

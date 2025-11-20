@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 4833260461851808126}
   m_Layer: 0
   m_Name: Collider
-  m_TagString: Untagged
+  m_TagString: Luz
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -78,7 +78,7 @@ GameObject:
   - component: {fileID: 7374105327610528885}
   m_Layer: 0
   m_Name: Light 2D Prefab
-  m_TagString: Untagged
+  m_TagString: Luz
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -191,6 +191,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 2
+  spotLight: {fileID: 6065485855019464198}
 --- !u!114 &5704184491602112497
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -210,6 +211,7 @@ MonoBehaviour:
   OwnershipTransfer: 0
   observableSearch: 2
   ObservedComponents:
+  - {fileID: -4134758828107889679}
   - {fileID: 7374105327610528885}
   sceneViewId: 0
   InstantiationId: 0

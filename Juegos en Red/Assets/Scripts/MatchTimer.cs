@@ -8,7 +8,7 @@ using UnityEngine.SceneManagement;
 public class MatchTimer : MonoBehaviourPunCallbacks
 {
     [Header("Timer Settings")]
-    public double matchDuration = 300; // en segundos (5 minutos)
+    public double matchDuration = 60; // en segundos (5 minutos)
     private double startTime;
 
     [Header("UI References")]
@@ -18,6 +18,8 @@ public class MatchTimer : MonoBehaviourPunCallbacks
     public Button returnToLobbyButton;
 
     private bool matchEnded = false;
+
+    public static bool damagePhase = false;
 
     private void Start()
     {
@@ -51,10 +53,22 @@ public class MatchTimer : MonoBehaviourPunCallbacks
             {
                 UpdateTimerUI(remaining);
             }
-            else
+
+            if (remaining <= 30)
+            {
+                damagePhase = true;
+            }
+
+            if (remaining <= 0)
             {
                 EndMatch();
             }
+
+            
+            //else
+            //{
+            //    EndMatch();
+            //}
         }
     }
 

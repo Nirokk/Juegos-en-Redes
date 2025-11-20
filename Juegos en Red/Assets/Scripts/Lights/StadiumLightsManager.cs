@@ -25,6 +25,14 @@ public class StadiumLightsManager : MonoBehaviourPun
 
     private void Update()
     {
+        //bool
+        if (MatchTimer.damagePhase)
+        {
+            fading = false;
+            globalLight.intensity = 0.75f;
+            return;
+        }
+        //low taper fade
         if (fading && globalLight != null)
         {
             fadeTimer -= Time.deltaTime;
@@ -37,6 +45,8 @@ public class StadiumLightsManager : MonoBehaviourPun
                 globalLight.intensity = 0f;
             }
         }
+
+        
     }
 
     //sincronizando
@@ -51,7 +61,7 @@ public class StadiumLightsManager : MonoBehaviourPun
         while (Vector2.Distance(startPos, endPos) < 2f)
             endPos = Random.insideUnitCircle * spawnRadius;
 
-        // 🟧 MODIFIED: now uses PhotonNetwork.Instantiate
+        //photon inst
         GameObject obj = PhotonNetwork.Instantiate(
             lightPrefab.name,
             startPos,
