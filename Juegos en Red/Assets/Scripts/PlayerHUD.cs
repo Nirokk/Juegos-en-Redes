@@ -10,27 +10,24 @@ public class PlayerHUD : MonoBehaviour
     [Header("Granada")]
     public Image grenadeIcon;
 
-    // Referencias
-    private Player_Inventory inv;
-    private Player_Model playerModel;
-    private PhotonView pv;
+    Player_Model playerModel;
+    Player_Inventory inv;
+    PhotonView pv;
 
     void Start()
     {
         pv = GetComponentInParent<PhotonView>();
 
-        // Seguridad: si no es mi jugador oculto el HUD
+        // Si NO es mi jugador, oculto el HUD
         if (pv == null || !pv.IsMine)
         {
             gameObject.SetActive(false);
             return;
         }
 
-        // Buscar componentes dentro del mismo Player
-        inv = GetComponentInParent<Player_Inventory>();
         playerModel = GetComponentInParent<Player_Model>();
+        inv = GetComponentInParent<Player_Inventory>();
 
-        // Inicializar slider si existe la referencia al player
         if (healthBar != null && playerModel != null)
         {
             healthBar.maxValue = playerModel._maxLife;
@@ -40,19 +37,12 @@ public class PlayerHUD : MonoBehaviour
 
     void Update()
     {
-        // Si el HUD fue desactivado (no es local), no hacemos nada
         if (pv == null || !pv.IsMine) return;
 
-        // Actualizar barra de vida
-        if (playerModel != null && healthBar != null)
-        {
+        if (playerModel != null)
             healthBar.value = playerModel._currentLife;
-        }
 
-        // Icono de granada
-        if (inv != null && grenadeIcon != null)
-        {
+        if (inv != null)
             grenadeIcon.enabled = inv.hasGrenade;
-        }
     }
 }
