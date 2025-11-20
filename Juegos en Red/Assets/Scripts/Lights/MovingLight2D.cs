@@ -1,28 +1,50 @@
 using UnityEngine;
-using UnityEngine.Rendering.Universal;
+using Photon.Pun;   
 
-public class MovingLight2D : MonoBehaviour
+public class MovingLight2D : MonoBehaviourPun, IPunObservable 
 {
     public float moveSpeed = 3f;
 
-    private Vector2 targetPos;
-    private System.Action onReachedTarget;
+    private Vector2 targetPos;   
+    private bool hasTarget = false; 
 
-    public void Init(Vector2 target, System.Action callback)
+    
+    public void SetTarget(Vector2 target)
     {
         targetPos = target;
-        onReachedTarget = callback;
+        hasTarget = true;
     }
 
     void Update()
     {
-        transform.position = Vector2.MoveTowards(transform.position, targetPos, moveSpeed * Time.deltaTime);
+        if (!hasTarget) return;  
 
-        // If we reached target, notify manager and destroy this light
+        transform.position = Vector2.MoveTowards(
+            transform.position,
+            targetPos,
+            moveSpeed * Time.deltaTime
+        );
+
+        //  MODIFIED: Photon destroy + spawn from Master
         if (Vector2.Distance(transform.position, targetPos) < 0.1f)
         {
-            onReachedTarget?.Invoke();
-            Destroy(gameObject);
+            if (PhotonNetwork.IsMasterClient)      
+            {
+                FindObjectOfType<StadiumLightsManager>().SpawnLight(); 
+                PhotonNetwork.Destroy(gameObject);                    
+            }
+        }
+    }
+
+    //  ADDED — Sync the target position
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        if (stream.IsWriting)
+            stream.SendNext(targetPos);
+        else
+        {
+            targetPos = (Vector2)stream.ReceiveNext();
+            hasTarget = true;
         }
     }
 }

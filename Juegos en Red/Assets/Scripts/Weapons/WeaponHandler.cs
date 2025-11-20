@@ -84,6 +84,7 @@ public class WeaponHandler : MonoBehaviourPun
         nextFireTime = Time.time + 0.2f / currentWeapon.fireRate;
         bulletsLeft--;
 
+        //aca se hace trigger de la luz del arma
         if (gunFlash != null)
             gunFlash.TriggerFlash();
 

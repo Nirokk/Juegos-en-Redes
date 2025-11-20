@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
+using Photon.Pun;   
 using UnityEngine.Rendering.Universal;
 
-public class StadiumLightsManager : MonoBehaviour
+public class StadiumLightsManager : MonoBehaviourPun 
 {
     [Header("Spotlights")]
     public GameObject lightPrefab;
@@ -9,52 +10,54 @@ public class StadiumLightsManager : MonoBehaviour
 
     [Header("Global Light")]
     public Light2D globalLight;
-    public float fadeDuration = 5f; // seconds until light is fully off
+    public float fadeDuration = 5f;
 
     private float fadeTimer;
     private bool fading = true;
 
-    void Start()
+    private void Start()
     {
-        // Start fading global light
         fadeTimer = fadeDuration;
 
-        // Start the first spotlight
-        SpawnLight();
+        if (PhotonNetwork.IsMasterClient)      
+            SpawnLight();                      
     }
 
-    void Update()
+    private void Update()
     {
         if (fading && globalLight != null)
         {
             fadeTimer -= Time.deltaTime;
-            float t = Mathf.Clamp01(fadeTimer / fadeDuration); // goes from 1 → 0
+            float t = Mathf.Clamp01(fadeTimer / fadeDuration);
             globalLight.intensity = t;
 
             if (fadeTimer <= 0)
             {
-                fading = false; // stop once fully dark
+                fading = false;
                 globalLight.intensity = 0f;
             }
         }
     }
 
-    void SpawnLight()
+    //sincronizando
+    public void SpawnLight()                  
     {
-        // Pick random start and end points inside circle
+        if (!PhotonNetwork.IsMasterClient)    
+            return;
+
         Vector2 startPos = Random.insideUnitCircle * spawnRadius;
         Vector2 endPos = Random.insideUnitCircle * spawnRadius;
 
-        // Avoid too short paths
         while (Vector2.Distance(startPos, endPos) < 2f)
-        {
             endPos = Random.insideUnitCircle * spawnRadius;
-        }
 
-        // Create spotlight
-        GameObject newLight = Instantiate(lightPrefab, startPos, Quaternion.identity);
+        // 🟧 MODIFIED: now uses PhotonNetwork.Instantiate
+        GameObject obj = PhotonNetwork.Instantiate(
+            lightPrefab.name,
+            startPos,
+            Quaternion.identity
+        );
 
-        // Give it a target + callback to spawn next when done
-        newLight.GetComponent<MovingLight2D>().Init(endPos, SpawnLight);
+        obj.GetComponent<MovingLight2D>().SetTarget(endPos);  
     }
 }
