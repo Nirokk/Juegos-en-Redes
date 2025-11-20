@@ -48,11 +48,7 @@ MonoBehaviour:
   - OnPhotonSerializeView
   - RPC_RequestDestroy
 <<<<<<< Updated upstream
-<<<<<<< Updated upstream
   - RPC_Flash
-=======
-  - SetPlayerState
->>>>>>> Stashed changes
 =======
   - SetPlayerState
 >>>>>>> Stashed changes
