@@ -5,6 +5,7 @@ public class PositionSerialization : MonoBehaviourPun, IPunObservable
 {
     public Transform playerChild; // referencia al hijo “Player”
     private Vector3 networkPos;
+    private Vector3 networkRot;
     private float lerpRate = 10f;
 
     private void Awake()
@@ -13,9 +14,11 @@ public class PositionSerialization : MonoBehaviourPun, IPunObservable
         if (playerChild == null)
         {
             playerChild = transform.Find("Player");
+            
         }
 
         networkPos = playerChild.position;
+        networkRot = playerChild.eulerAngles;
     }
 
     private void Update()
@@ -28,6 +31,11 @@ public class PositionSerialization : MonoBehaviourPun, IPunObservable
                 networkPos,
                 Time.deltaTime * lerpRate
             );
+            playerChild.eulerAngles = Vector3.Lerp(
+                playerChild.eulerAngles,
+                networkRot,
+                Time.deltaTime * lerpRate
+            );
         }
     }
 
@@ -36,10 +44,12 @@ public class PositionSerialization : MonoBehaviourPun, IPunObservable
         if (stream.IsWriting)
         {
             stream.SendNext(playerChild.position);
+            stream.SendNext(playerChild.eulerAngles);
         }
         else
         {
             networkPos = (Vector3)stream.ReceiveNext();
+            networkRot = (Vector3)stream.ReceiveNext();
         }
     }
 }
