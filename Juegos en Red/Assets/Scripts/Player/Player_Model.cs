@@ -1,6 +1,7 @@
 ﻿using Photon.Pun;
 using Photon.Realtime;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 
@@ -43,6 +44,24 @@ public class Player_Model : MonoBehaviour, IMove_Look
         _banned = true;
         PhotonNetwork.Disconnect();
     }
+
+    void OnDestroy()
+    {
+        if (_photonView != null)
+            DisconnectionHandler.UnregisterPlayerInstance(_photonView.Owner.ActorNumber);
+    }
+
+    
+    private void OnApplicationQuit()
+    {
+        if(_photonView != null && _photonView.IsMine)
+        {
+            PhotonNetwork.LeaveRoom();
+            PhotonNetwork.Disconnect();
+            PhotonNetwork.DestroyPlayerObjects(PhotonNetwork.LocalPlayer);
+        }
+    }
+
     #endregion
 
     #region Player Movement
@@ -125,14 +144,14 @@ public class Player_Model : MonoBehaviour, IMove_Look
             return;
         }
 
-        // 🔹 Enviar RPC ANTES de destruir
+        
         PhotonView pv = GetComponent<PhotonView>();
         if (pv != null)
         {
             Debug.Log($"[Die] Enviando RPC ReportKillToMaster -> killer:{killerPlayer.NickName} victim:{PhotonNetwork.LocalPlayer.NickName}");
             pv.RPC("ReportKillToMaster", RpcTarget.MasterClient, killerActorNumber, PhotonNetwork.LocalPlayer.ActorNumber);
 
-            // ⏱️ Esperar un frame antes de destruir para que el RPC se envíe
+            
             StartCoroutine(DestroyAfterRPC());
         }
         else
@@ -175,7 +194,7 @@ public class Player_Model : MonoBehaviour, IMove_Look
 
         Debug.Log($"[ReportKillToMaster] Killer:{killerPlayer.NickName}({killerTeam}) -> Victim:{victimPlayer.NickName}({victimTeam})");
 
-        // 🔧 CORREGIDO: Comparar con "A" y "B" en lugar de "TeamA" y "TeamB"
+        
         int killerTeamIndex = killerTeam == "A" ? 0 : 1;
         int victimTeamIndex = victimTeam == "A" ? 0 : 1;
 
