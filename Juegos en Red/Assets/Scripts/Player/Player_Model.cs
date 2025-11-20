@@ -41,6 +41,24 @@ public class Player_Model : MonoBehaviour, IMove_Look
         _banned = true;
         PhotonNetwork.Disconnect();
     }
+
+    void OnDestroy()
+    {
+        if (_photonView != null)
+            DisconnectionHandler.UnregisterPlayerInstance(_photonView.Owner.ActorNumber);
+    }
+
+
+    private void OnApplicationQuit()
+    {
+        if (_photonView != null && _photonView.IsMine)
+        {
+            PhotonNetwork.LeaveRoom();
+            PhotonNetwork.Disconnect();
+            PhotonNetwork.DestroyPlayerObjects(PhotonNetwork.LocalPlayer);
+        }
+    }
+
     #endregion
 
     #region Player Movement
