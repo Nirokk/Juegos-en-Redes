@@ -6,13 +6,12 @@ using UnityEngine;
 
 public class DisconnectionHandler : MonoBehaviour
 {
-    // Mapa que guarda qué jugador corresponde a qué objeto en escena.
-    // Lo llenas desde tu GameStarter cuando instancias jugadores.
+    
 
     public static Dictionary<int, GameObject> playerInstances = new Dictionary<int, GameObject>();
 
 
-    // Registrar el jugador después de instanciarlo
+    
     public static void RegisterPlayerInstance(int actorNumber, GameObject playerObj)
     {
         if (!playerInstances.ContainsKey(actorNumber))
