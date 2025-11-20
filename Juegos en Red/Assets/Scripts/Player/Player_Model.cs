@@ -173,22 +173,22 @@ public class Player_Model : MonoBehaviour, IMove_Look
     {
         _isDead = true;
 
-        // 1. Desactivar visuales y colisiones en TODOS los clientes
+        
         _photonView.RPC("SetPlayerState", RpcTarget.All, false);
 
-        // 2. Esperar tiempo de respawn (ej. 3 segundos)
+        
         yield return new WaitForSeconds(3.0f);
 
-        // 3. Obtener nueva posición del Singleton GameStarter
+        
         string myTeam = (string)PhotonNetwork.LocalPlayer.CustomProperties["team"];
         Vector3 newSpawnPos = GameStarter.Instance.GetRandomSpawnPoint(myTeam);
 
-        // 4. Mover el transform y resetear vida
+        
         transform.position = newSpawnPos;
         _currentLife = _maxLife;
         _isDead = false;
 
-        // 5. Reactivar visuales en TODOS los clientes
+        
         _photonView.RPC("SetPlayerState", RpcTarget.All, true);
     }
 
@@ -202,24 +202,22 @@ public class Player_Model : MonoBehaviour, IMove_Look
     [PunRPC]
     public void SetPlayerState(bool isActive)
     {
-        // Sprites y Colisionadores
+       
         if (_spriteRenderer != null) _spriteRenderer.enabled = isActive;
         if (_collider != null) _collider.enabled = isActive;
 
-        // Canvas del nombre
+       
         if (_playerName != null) _playerName.enabled = isActive;
 
-        // Luces (Solo si es local o si queremos que otros vean que se apaga la luz)
-        // Dependiendo de tu lógica de DesactivateLights, quizás quieras forzar apagado aquí
+        
         if (_playerLight != null) _playerLight.enabled = isActive;
         if (_playerLight2 != null) _playerLight2.enabled = isActive;
 
-        // Si NO es mi jugador, asegúrate de volver a aplicar la lógica de luces/nombre
-        // cuando revive (isActive = true) para que no vea luces enemigas, por ejemplo.
+       
         if (isActive)
         {
-            DesactivateLights(); // Tu método original para filtrar luces ajenas
-            DesactivateName();   // Tu método original para filtrar nombres enemigos
+            DesactivateLights(); 
+            DesactivateName();   
         }
     }
 

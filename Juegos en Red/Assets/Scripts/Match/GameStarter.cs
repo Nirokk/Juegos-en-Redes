@@ -60,7 +60,7 @@ public class GameStarter : MonoBehaviourPunCallbacks
     {
         string myTeam = (string)PhotonNetwork.LocalPlayer.CustomProperties["team"];
 
-        // Usamos el nuevo método para obtener la posición inicial también
+        
         Vector3 spawnPos = GetRandomSpawnPoint(myTeam);
 
         if (myTeam == "A" || myTeam == "B")
@@ -85,7 +85,7 @@ public class GameStarter : MonoBehaviourPunCallbacks
 
     private void CleanupPlayerObjects(Player player)
     {
-        // Tu lógica original...
+        
         PhotonView[] allViews = FindObjectsOfType<PhotonView>();
         foreach (PhotonView view in allViews)
         {
