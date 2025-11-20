@@ -1055,17 +1055,9 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8003552681681110812, guid: ae719e473a3f94b4dbf63e05200e18b4, type: 3}
-      propertyPath: _collider
-      value: 
-      objectReference: {fileID: 8631132365431608731}
-    - target: {fileID: 8003552681681110812, guid: ae719e473a3f94b4dbf63e05200e18b4, type: 3}
       propertyPath: _playerName
       value: 
       objectReference: {fileID: 7699104178254529167}
-    - target: {fileID: 8003552681681110812, guid: ae719e473a3f94b4dbf63e05200e18b4, type: 3}
-      propertyPath: _spriteRenderer
-      value: 
-      objectReference: {fileID: 856834715006903931}
     - target: {fileID: 8424639577207747078, guid: ae719e473a3f94b4dbf63e05200e18b4, type: 3}
       propertyPath: sceneViewId
       value: 0
@@ -1122,11 +1114,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   interactionRadius: 1
---- !u!212 &856834715006903931 stripped
-SpriteRenderer:
-  m_CorrespondingSourceObject: {fileID: 7215684368342589823, guid: ae719e473a3f94b4dbf63e05200e18b4, type: 3}
-  m_PrefabInstance: {fileID: 8054498894078510852}
-  m_PrefabAsset: {fileID: 0}
 --- !u!224 &5881222604785784884 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 4492649442256789296, guid: ae719e473a3f94b4dbf63e05200e18b4, type: 3}
@@ -1148,8 +1135,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!58 &8631132365431608731 stripped
-CircleCollider2D:
-  m_CorrespondingSourceObject: {fileID: 1729563924560220831, guid: ae719e473a3f94b4dbf63e05200e18b4, type: 3}
-  m_PrefabInstance: {fileID: 8054498894078510852}
-  m_PrefabAsset: {fileID: 0}
