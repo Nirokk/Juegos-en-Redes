@@ -115,7 +115,7 @@ public class MatchTimer : MonoBehaviourPunCallbacks
     {
         Time.timeScale = 1f;
         PhotonNetwork.AutomaticallySyncScene = true;
-        SceneManager.LoadScene("TeamSelection");
+        SceneManager.LoadScene("LobbyScene");
     }
 
     
