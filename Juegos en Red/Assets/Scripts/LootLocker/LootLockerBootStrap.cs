@@ -8,7 +8,7 @@ public class LootLockerBootStrap : MonoBehaviour
 {
     public static bool SessionStarted { get; private set; }
 
-    [SerializeField] string playerIdentifier = DateTime.Now.ToString();
+    public string playerIdentifier = DateTime.Now.ToString();
 
     private static LootLockerBootStrap _instance;
     public static LootLockerBootStrap Instance { get => _instance; set => _instance = value; }
@@ -21,6 +21,7 @@ public class LootLockerBootStrap : MonoBehaviour
 
     void StartGuest()
     {
+       
         LootLockerSDKManager.StartGuestSession(playerIdentifier, response =>
         {
             if (!response.success)
@@ -41,9 +42,9 @@ public class LootLockerBootStrap : MonoBehaviour
             else Debug.Log("Se puso el nombre");
         });
     }
-    public static void SubmitScore(int score, string leaderboardKey, System.Action<bool> onDone = null)
+    public static void SubmitScore(string Id, int score, string leaderboardKey, System.Action<bool> onDone = null)
     {
-        LootLockerSDKManager.SubmitScore("", score, leaderboardKey, response =>
+        LootLockerSDKManager.SubmitScore(Id, score, leaderboardKey, response =>
         {
             if (!response.success)
             {

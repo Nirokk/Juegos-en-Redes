@@ -27,6 +27,7 @@ public class Player_Model : MonoBehaviour, IMove_Look
 
 
     public int personalKills;
+    public string playerID;
 
     private void Awake()
     {
@@ -35,6 +36,7 @@ public class Player_Model : MonoBehaviour, IMove_Look
 
         if (_spriteRenderer == null) _spriteRenderer = GetComponent<SpriteRenderer>();
         if (_collider == null) _collider = GetComponent<Collider2D>();
+        playerID = LootLockerBootStrap.Instance.playerIdentifier;
 
     }
 
@@ -277,7 +279,7 @@ public class Player_Model : MonoBehaviour, IMove_Look
         else
         {
             Debug.LogError("Enviando kills a LootLocker: " + personalKills);
-            LootLockerBootStrap.SubmitScore(personalKills, "mostkills", success =>
+            LootLockerBootStrap.SubmitScore(playerID ,personalKills, "mostkills", success =>
             {
                 if (success)
                 {
