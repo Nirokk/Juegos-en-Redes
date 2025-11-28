@@ -25,6 +25,9 @@ public class Player_Model : MonoBehaviour, IMove_Look
 
     private bool _isDead = false;
 
+
+    public int personalKills;
+
     private void Awake()
     {
         _photonView = GetComponent<PhotonView>();
@@ -40,7 +43,10 @@ public class Player_Model : MonoBehaviour, IMove_Look
         _currentLife = _maxLife;
         DesactivateLights();
         DesactivateName();
+        MatchTimer.OnMatchEnded += SendPlayerKills;
     }
+
+
 
     #region Pun methods
     public void BanPlayer()
@@ -54,6 +60,8 @@ public class Player_Model : MonoBehaviour, IMove_Look
     {
         if (_photonView != null)
             DisconnectionHandler.UnregisterPlayerInstance(_photonView.Owner.ActorNumber);
+
+        MatchTimer.OnMatchEnded -= SendPlayerKills;
     }
 
 
@@ -84,7 +92,7 @@ public class Player_Model : MonoBehaviour, IMove_Look
         //_rb.velocity = moveDir * _speed;
         //moveDir *= _speed;
         transform.position += (Vector3)(moveDir * _speed * Time.deltaTime);
-        
+
     }
 
     public void LookDir()
@@ -118,17 +126,17 @@ public class Player_Model : MonoBehaviour, IMove_Look
 
     private void DesactivateLights()
     {
-        if(!_photonView.IsMine)
+        if (!_photonView.IsMine)
         {
             _playerLight.enabled = false;
             _playerLight2.enabled = false;
-            
+
         }
     }
     private void DesactivateName()
     {
         if (_photonView.IsMine)
-            return; 
+            return;
 
         var _myActorId = _photonView.Owner.ActorNumber;
         var _thisPlayer = PhotonNetwork.CurrentRoom.GetPlayer(_myActorId);
@@ -138,7 +146,7 @@ public class Player_Model : MonoBehaviour, IMove_Look
         {
             _playerName.enabled = false;
         }
-        
+
     }
 
 
@@ -161,7 +169,8 @@ public class Player_Model : MonoBehaviour, IMove_Look
         if (pv != null)
         {
             Debug.Log($"[Die] Enviando RPC ReportKillToMaster -> killer:{killerPlayer.NickName} victim:{PhotonNetwork.LocalPlayer.NickName}");
-            pv.RPC("ReportKillToMaster", RpcTarget.MasterClient, killerActorNumber, PhotonNetwork.LocalPlayer.ActorNumber);
+            pv.RPC("ReportKillToMaster", RpcTarget.All, killerActorNumber, PhotonNetwork.LocalPlayer.ActorNumber);
+            pv.RPC("AddPersonalKill", PhotonNetwork.CurrentRoom.GetPlayer(killerActorNumber));
 
             // Esperar un frame antes de destruir para que el RPC se envíe
             StartCoroutine(RespawnRoutine());
@@ -173,22 +182,22 @@ public class Player_Model : MonoBehaviour, IMove_Look
     {
         _isDead = true;
 
-        
+
         _photonView.RPC("SetPlayerState", RpcTarget.All, false);
 
-        
+
         yield return new WaitForSeconds(3.0f);
 
-        
+
         string myTeam = (string)PhotonNetwork.LocalPlayer.CustomProperties["team"];
         Vector3 newSpawnPos = GameStarter.Instance.GetRandomSpawnPoint(myTeam);
 
-        
+
         transform.position = newSpawnPos;
         _currentLife = _maxLife;
         _isDead = false;
 
-        
+
         _photonView.RPC("SetPlayerState", RpcTarget.All, true);
     }
 
@@ -202,33 +211,33 @@ public class Player_Model : MonoBehaviour, IMove_Look
     [PunRPC]
     public void SetPlayerState(bool isActive)
     {
-       
+
         if (_spriteRenderer != null) _spriteRenderer.enabled = isActive;
         if (_collider != null) _collider.enabled = isActive;
 
-       
+
         if (_playerName != null) _playerName.enabled = isActive;
 
-        
+
         if (_playerLight != null) _playerLight.enabled = isActive;
         if (_playerLight2 != null) _playerLight2.enabled = isActive;
 
-       
+
         if (isActive)
         {
-            DesactivateLights(); 
-            DesactivateName();   
+            DesactivateLights();
+            DesactivateName();
         }
     }
 
     [PunRPC]
     public void ReportKillToMaster(int killerActorNumber, int victimActorNumber)
     {
-        if (!PhotonNetwork.IsMasterClient)
-            return;
-
         Photon.Realtime.Player killerPlayer = PhotonNetwork.CurrentRoom.GetPlayer(killerActorNumber);
         Photon.Realtime.Player victimPlayer = PhotonNetwork.CurrentRoom.GetPlayer(victimActorNumber);
+
+        if (!PhotonNetwork.IsMasterClient)
+            return;
 
         if (killerPlayer == null || victimPlayer == null)
         {
@@ -250,6 +259,35 @@ public class Player_Model : MonoBehaviour, IMove_Look
         int victimTeamIndex = victimTeam == "A" ? 0 : 1;
 
         ScoreManager.Instance.AddScore(killerTeamIndex, victimTeamIndex);
+        
     }
     #endregion
+
+    [PunRPC]
+    public void AddPersonalKill()
+    {
+        personalKills++;
+        Debug.LogError("Kills personales de " + _photonView.Owner.NickName + ": " + personalKills);
+    }
+
+    public void SendPlayerKills()
+    {
+        if (!_photonView.IsMine)
+            return;
+        else
+        {
+            Debug.LogError("Enviando kills a LootLocker: " + personalKills);
+            LootLockerBootStrap.SubmitScore(personalKills, "mostkills", success =>
+            {
+                if (success)
+                {
+                    Debug.Log("Puntuación enviada correctamente.");
+                }
+                else
+                {
+                    Debug.LogError("Error al enviar la puntuación.");
+                }
+            });
+        }
+    }
 }

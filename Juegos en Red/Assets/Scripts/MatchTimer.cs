@@ -4,6 +4,7 @@ using Photon.Realtime;
 using TMPro;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using System;
 
 public class MatchTimer : MonoBehaviourPunCallbacks
 {
@@ -20,6 +21,8 @@ public class MatchTimer : MonoBehaviourPunCallbacks
     private bool matchEnded = false;
 
     public static bool damagePhase = false;
+
+    public static Action OnMatchEnded;
 
     private void Start()
     {
@@ -82,6 +85,8 @@ public class MatchTimer : MonoBehaviourPunCallbacks
     private void EndMatch()
     {
         matchEnded = true;
+
+        OnMatchEnded?.Invoke();
 
         // Mostramos el panel de fin
         if (endMatchPanel != null)

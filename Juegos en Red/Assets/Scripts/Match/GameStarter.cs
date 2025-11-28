@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class GameStarter : MonoBehaviourPunCallbacks
 {
-    // 1. Creamos una instancia estática para acceder desde otros scripts
+    //  Creamos una instancia estática para acceder desde otros scripts
     public static GameStarter Instance;
 
     public Transform[] spawnPoints;
@@ -24,7 +24,7 @@ public class GameStarter : MonoBehaviourPunCallbacks
 
     private void Awake()
     {
-        // 2. Configuración del Singleton
+        // Configuración del Singleton
         if (Instance == null)
         {
             Instance = this;
@@ -40,7 +40,7 @@ public class GameStarter : MonoBehaviourPunCallbacks
         SpawnPlayer();
     }
 
-    // 3. Método nuevo para que el Player pida un punto de spawn
+    // Método nuevo para que el Player pida un punto de spawn
     public Vector3 GetRandomSpawnPoint(string team)
     {
         if (team == "A" && teamAspawnPointsList.Count > 0)
