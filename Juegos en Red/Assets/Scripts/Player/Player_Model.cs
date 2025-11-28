@@ -274,10 +274,10 @@ public class Player_Model : MonoBehaviour, IMove_Look
 
     public void SendPlayerKills()
     {
-        if (!_photonView.IsMine)
-            return;
-        else
-        {
+        //if (!_photonView.IsMine)
+        //    return;
+        //else
+        //{
             Debug.LogError("Enviando kills a LootLocker: " + personalKills);
             LootLockerBootStrap.SubmitScore(playerID ,personalKills, "mostkills", success =>
             {
@@ -290,6 +290,6 @@ public class Player_Model : MonoBehaviour, IMove_Look
                     Debug.LogError("Error al enviar la puntuación.");
                 }
             });
-        }
+        //}
     }
 }
