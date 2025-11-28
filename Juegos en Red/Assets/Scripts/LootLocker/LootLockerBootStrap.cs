@@ -56,6 +56,7 @@ public class LootLockerBootStrap : MonoBehaviour
             Debug.Log("Se envio el score");
             onDone?.Invoke(true);
         });
+        
     }
 }
 

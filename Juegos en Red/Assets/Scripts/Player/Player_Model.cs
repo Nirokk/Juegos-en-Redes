@@ -172,8 +172,8 @@ public class Player_Model : MonoBehaviour, IMove_Look
         {
             Debug.Log($"[Die] Enviando RPC ReportKillToMaster -> killer:{killerPlayer.NickName} victim:{PhotonNetwork.LocalPlayer.NickName}");
             pv.RPC("ReportKillToMaster", RpcTarget.All, killerActorNumber, PhotonNetwork.LocalPlayer.ActorNumber);
-            pv.RPC("AddPersonalKill", PhotonNetwork.CurrentRoom.GetPlayer(killerActorNumber));
-
+            //pv.RPC("AddPersonalKill", PhotonNetwork.CurrentRoom.GetPlayer(killerActorNumber));
+            AddPersonalKill(killerActorNumber);
             // Esperar un frame antes de destruir para que el RPC se envíe
             StartCoroutine(RespawnRoutine());
         }
@@ -266,18 +266,22 @@ public class Player_Model : MonoBehaviour, IMove_Look
     #endregion
 
     [PunRPC]
-    public void AddPersonalKill()
+    public void AddPersonalKill(int killerNumber)
     {
-        personalKills++;
-        Debug.LogError("Kills personales de " + _photonView.Owner.NickName + ": " + personalKills);
+        if(_photonView.Owner.ActorNumber == killerNumber)
+        {
+            personalKills++;
+            Debug.LogError("Kills personales de " + _photonView.Owner.NickName + ": " + personalKills);
+        }
+       
     }
 
     public void SendPlayerKills()
     {
-        //if (!_photonView.IsMine)
-        //    return;
-        //else
-        //{
+        if (!_photonView.IsMine)
+            return;
+        else
+        {
             Debug.LogError("Enviando kills a LootLocker: " + personalKills);
             LootLockerBootStrap.SubmitScore(playerID ,personalKills, "mostkills", success =>
             {
@@ -290,6 +294,6 @@ public class Player_Model : MonoBehaviour, IMove_Look
                     Debug.LogError("Error al enviar la puntuación.");
                 }
             });
-        //}
+        }
     }
 }
