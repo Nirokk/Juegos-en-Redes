@@ -31,7 +31,7 @@ public class Bullet : MonoBehaviourPun
         var target = collision.GetComponent<Player_Model>();
         if (target != null)
         {
-            target._photonView.RPC("TakeDamage", RpcTarget.All, (int)damage);
+            target._photonView.RPC("TakeDamage", RpcTarget.All, (int)damage, photonView.Owner.ActorNumber);
         }
 
         if (!collision.CompareTag("Luz"))

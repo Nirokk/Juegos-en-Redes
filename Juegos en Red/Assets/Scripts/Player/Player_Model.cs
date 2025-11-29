@@ -4,8 +4,9 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 using System.Collections;
+using ExitGames.Client.Photon;
 
-public class Player_Model : MonoBehaviour, IMove_Look
+public class Player_Model : MonoBehaviourPunCallbacks, IMove_Look
 {
     Rigidbody2D _rb;
     [SerializeField] private Light2D _playerLight;
@@ -45,7 +46,8 @@ public class Player_Model : MonoBehaviour, IMove_Look
         _currentLife = _maxLife;
         DesactivateLights();
         DesactivateName();
-        MatchTimer.OnMatchEnded += SendPlayerKills;
+        //Debug.Log("PLAYER_MODEL Start() — SUSCRIBO al evento → " + this.gameObject.name);
+        //MatchTimer.OnMatchEnded += SendPlayerKills;
     }
 
 
@@ -61,9 +63,13 @@ public class Player_Model : MonoBehaviour, IMove_Look
     void OnDestroy()
     {
         if (_photonView != null)
+        {
             DisconnectionHandler.UnregisterPlayerInstance(_photonView.Owner.ActorNumber);
+            //MatchTimer.OnMatchEnded -= SendPlayerKills;
+        }
+           
 
-        MatchTimer.OnMatchEnded -= SendPlayerKills;
+       
     }
 
 
@@ -113,14 +119,14 @@ public class Player_Model : MonoBehaviour, IMove_Look
     }
 
     [PunRPC]
-    public void TakeDamage(int amount, PhotonMessageInfo info)
+    public void TakeDamage(int amount, int info)
     {
         if (_isDead) return;
         _currentLife -= amount;
 
         if (_currentLife <= 0)
         {
-            int killerActorNumber = info.Sender.ActorNumber;
+            int killerActorNumber = info;
             Die(killerActorNumber);
         }
     }
@@ -171,9 +177,10 @@ public class Player_Model : MonoBehaviour, IMove_Look
         if (pv != null)
         {
             Debug.Log($"[Die] Enviando RPC ReportKillToMaster -> killer:{killerPlayer.NickName} victim:{PhotonNetwork.LocalPlayer.NickName}");
+            
             pv.RPC("ReportKillToMaster", RpcTarget.All, killerActorNumber, PhotonNetwork.LocalPlayer.ActorNumber);
-            //pv.RPC("AddPersonalKill", PhotonNetwork.CurrentRoom.GetPlayer(killerActorNumber));
-            AddPersonalKill(killerActorNumber);
+            pv.RPC("AddPersonalKill", RpcTarget.All, killerActorNumber);
+            
             // Esperar un frame antes de destruir para que el RPC se envíe
             StartCoroutine(RespawnRoutine());
         }
@@ -268,20 +275,29 @@ public class Player_Model : MonoBehaviour, IMove_Look
     [PunRPC]
     public void AddPersonalKill(int killerNumber)
     {
-        if(_photonView.Owner.ActorNumber == killerNumber)
+        Debug.LogError("Añadiendo kill personal. KillerNumber: " + killerNumber + ", Mi ActorNumber: " + _photonView.Owner.ActorNumber);
+        if (_photonView.Owner.ActorNumber == killerNumber)
         {
+
             personalKills++;
             Debug.LogError("Kills personales de " + _photonView.Owner.NickName + ": " + personalKills);
         }
        
     }
-
+    public override void OnRoomPropertiesUpdate(ExitGames.Client.Photon.Hashtable changedProps)
+    {
+        if (changedProps.ContainsKey("MatchEnded"))
+        {
+            bool ended = (bool)changedProps["MatchEnded"];
+            if (ended)
+            {
+                Debug.Log("Match terminado detectado — enviando kills");
+                SendPlayerKills();
+            }
+        }
+    }
     public void SendPlayerKills()
     {
-        if (!_photonView.IsMine)
-            return;
-        else
-        {
             Debug.LogError("Enviando kills a LootLocker: " + personalKills);
             LootLockerBootStrap.SubmitScore(playerID ,personalKills, "mostkills", success =>
             {
@@ -294,6 +310,6 @@ public class Player_Model : MonoBehaviour, IMove_Look
                     Debug.LogError("Error al enviar la puntuación.");
                 }
             });
-        }
+        
     }
 }

@@ -22,7 +22,7 @@ public class MatchTimer : MonoBehaviourPunCallbacks
 
     public static bool damagePhase = false;
 
-    public static Action OnMatchEnded;
+    //public static Action OnMatchEnded;
 
     private void Start()
     {
@@ -86,7 +86,14 @@ public class MatchTimer : MonoBehaviourPunCallbacks
     {
         matchEnded = true;
 
-        OnMatchEnded?.Invoke();
+        //OnMatchEnded?.Invoke();
+        //Debug.Log("OnMatchEnded INVOKE — Suscriptores: " +
+        //  (OnMatchEnded?.GetInvocationList()?.Length ?? 0));
+
+        ExitGames.Client.Photon.Hashtable h = new ExitGames.Client.Photon.Hashtable();
+        h["MatchEnded"] = true;
+        PhotonNetwork.CurrentRoom.SetCustomProperties(h);
+
 
         // Mostramos el panel de fin
         if (endMatchPanel != null)
