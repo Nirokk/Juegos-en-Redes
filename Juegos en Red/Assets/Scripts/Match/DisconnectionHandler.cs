@@ -188,8 +188,9 @@ public class DisconnectionHandler : MonoBehaviourPunCallbacks
     private void OnApplicationQuit()
     {
         PlayerPrefs.SetInt("PendingReconnect", 1); //Esto declara que había una partida en curso
+        PlayerPrefs.SetString("LastRoomName", PhotonNetwork.CurrentRoom.Name);
         PlayerPrefs.Save();
-        PhotonNetwork.LeaveRoom();
-        PhotonNetwork.Disconnect();
+        //PhotonNetwork.LeaveRoom();
+        //PhotonNetwork.Disconnect();
     }
 }
