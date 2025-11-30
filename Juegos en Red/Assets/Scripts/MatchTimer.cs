@@ -18,6 +18,9 @@ public class MatchTimer : MonoBehaviourPunCallbacks
     public TextMeshProUGUI winnerText;
     public Button returnToLobbyButton;
 
+    public static bool isPausedByDisconnection = false;
+    private double pausedRemainingTime = -1;
+
     private bool matchEnded = false;
 
     public static bool damagePhase = false;
@@ -46,34 +49,43 @@ public class MatchTimer : MonoBehaviourPunCallbacks
     {
         if (matchEnded) return;
 
-        if (PhotonNetwork.CurrentRoom.CustomProperties.ContainsKey("MatchStartTime"))
+        if (!PhotonNetwork.CurrentRoom.CustomProperties.ContainsKey("MatchStartTime"))
+            return;
+
+        startTime = (double)PhotonNetwork.CurrentRoom.CustomProperties["MatchStartTime"];
+
+        // Si el juego está pausado por desconexión, NO avanza el timer
+        if (isPausedByDisconnection)
         {
-            startTime = (double)PhotonNetwork.CurrentRoom.CustomProperties["MatchStartTime"];
-            double elapsed = PhotonNetwork.Time - startTime;
-            double remaining = matchDuration - elapsed;
-
-            if (remaining > 0)
+            // Guardar el último tiempo restante una sola vez
+            if (pausedRemainingTime < 0)
             {
-                UpdateTimerUI(remaining);
+                double elapsedWhenPaused = PhotonNetwork.Time - startTime;
+                pausedRemainingTime = matchDuration - elapsedWhenPaused;
             }
 
-            if (remaining <= 30)
-            {
-                damagePhase = true;
-            }
-
-            if (remaining <= 0)
-            {
-                EndMatch();
-            }
-
-            
-            //else
-            //{
-            //    EndMatch();
-            //}
+            // Mostrar el tiempo congelado mientras está la pausa
+            UpdateTimerUI(pausedRemainingTime);
+            return;
         }
+
+        // Si NO está pausado, seguimos normalmente
+        double elapsed = PhotonNetwork.Time - startTime;
+        double remaining = matchDuration - elapsed;
+
+        // Si salimos de la pausa, borramos el tiempo congelado
+        pausedRemainingTime = -1;
+
+        if (remaining > 0)
+            UpdateTimerUI(remaining);
+
+        if (remaining <= 30)
+            damagePhase = true;
+
+        if (remaining <= 0)
+            EndMatch();
     }
+
 
     private void UpdateTimerUI(double remainingTime)
     {
