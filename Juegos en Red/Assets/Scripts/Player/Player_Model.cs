@@ -37,15 +37,18 @@ public class Player_Model : MonoBehaviourPunCallbacks, IMove_Look
 
         if (_spriteRenderer == null) _spriteRenderer = GetComponent<SpriteRenderer>();
         if (_collider == null) _collider = GetComponent<Collider2D>();
-        playerID = LootLockerBootStrap.Instance.playerIdentifier;
 
     }
 
-    private void Start()
+    private IEnumerator Start()
     {
         _currentLife = _maxLife;
         DesactivateLights();
         DesactivateName();
+        while (LootLockerBootStrap.Instance == null)
+            yield return null;
+        playerID = LootLockerBootStrap.Instance.playerIdentifier;
+
         //Debug.Log("PLAYER_MODEL Start() — SUSCRIBO al evento → " + this.gameObject.name);
         //MatchTimer.OnMatchEnded += SendPlayerKills;
     }
