@@ -1,59 +1,166 @@
-using Photon.Pun;
+ï»¿using Photon.Pun;
 using Photon.Realtime;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using TMPro;
 
-public class DisconnectionHandler : MonoBehaviour
+public class DisconnectionHandler : MonoBehaviourPunCallbacks
 {
-    
+    [Header("Tiempos (segundos)")]
+    public float waitForReconnectTime = 20f;
+    public float continueMatchCountdown = 5f;
+
+    [Header("Paneles UI")]
+    public GameObject reconnectPanel;
+    public TextMeshProUGUI reconnectTimerText;
+
+    public GameObject continuePanel;
+    public TextMeshProUGUI continueTimerText;
+
+    public GameObject matchEndedPanel;
+    public GameObject matchEndedButton;
 
     public static Dictionary<int, GameObject> playerInstances = new Dictionary<int, GameObject>();
 
-
-    
     public static void RegisterPlayerInstance(int actorNumber, GameObject playerObj)
     {
         if (!playerInstances.ContainsKey(actorNumber))
-        {
             playerInstances.Add(actorNumber, playerObj);
-            Debug.Log($"Registrado player {actorNumber} en DisconnectionHandler.");
-        }
     }
 
-    // Quitar registro (se llama automáticamente cuando el objeto se destruye)
     public static void UnregisterPlayerInstance(int actorNumber)
     {
         if (playerInstances.ContainsKey(actorNumber))
-        {
             playerInstances.Remove(actorNumber);
-            Debug.Log($"Unregistrado player {actorNumber}");
+    }
+
+    // DESCONEXIÃ“N
+    public override void OnPlayerLeftRoom(Player otherPlayer)
+    {
+        Debug.Log($"Jugador desconectado: {otherPlayer.NickName} ({otherPlayer.ActorNumber})");
+
+        if (playerInstances.TryGetValue(otherPlayer.ActorNumber, out GameObject obj))
+        {
+            PhotonNetwork.Destroy(obj);
+            playerInstances.Remove(otherPlayer.ActorNumber);
+        }
+
+        if (PhotonNetwork.IsMasterClient)
+        {
+            StartCoroutine(HandleDisconnectRoutine(otherPlayer));
         }
     }
 
-
-    // Photon llama esto automáticamente cuando alguien se desconecta
-    public void OnPlayerLeftRoom(Player otherPlayer)
+    // RUTINA PRINCIPAL
+    private IEnumerator HandleDisconnectRoutine(Player disconnectedPlayer)
     {
-        Debug.Log($"Jugador se desconectó: {otherPlayer.NickName} ({otherPlayer.ActorNumber})");
+        Time.timeScale = 0f;
 
-        if (playerInstances.TryGetValue(otherPlayer.ActorNumber, out GameObject playerObj))
+        reconnectPanel.SetActive(true);
+
+        float timer = waitForReconnectTime;
+
+        while (timer > 0f)
         {
-            Debug.Log("Encontré su objeto en escena. Procedo a destruirlo.");
+            reconnectTimerText.text = Mathf.Ceil(timer).ToString("0");
+            timer -= Time.unscaledDeltaTime;
 
-            PhotonNetwork.Destroy(playerObj);
-            playerInstances.Remove(otherPlayer.ActorNumber);
+            // VolviÃ³ un jugador
+            if (PhotonNetwork.PlayerList.Length > CountPlayers())
+                break;
+
+            yield return null;
+        }
+
+        reconnectPanel.SetActive(false);
+
+        // SI VOLVIÃ“
+        if (PhotonNetwork.PlayerList.Length > CountPlayers())
+        {
+            ResumeMatch();
+            yield break;
+        }
+
+        // SI NO VUELVE el jugador desconectado entonces evaluar equipos
+        if (TeamAHasPlayers() && TeamBHasPlayers())
+        {
+            yield return StartCoroutine(ContinueMatchRoutine());
         }
         else
         {
-            Debug.LogWarning(" No se encontró el objeto del jugador desconectado. Revisa si lo registraste.");
+            EndMatchForEveryone();
         }
     }
+
+    // CONTINUAR PARTIDA
+    private IEnumerator ContinueMatchRoutine()
+    {
+        continuePanel.SetActive(true);
+
+        float t = continueMatchCountdown;
+
+        while (t > 0f)
+        {
+            continueTimerText.text = Mathf.Ceil(t).ToString("0");
+            t -= Time.unscaledDeltaTime;
+            yield return null;
+        }
+
+        continuePanel.SetActive(false);
+        ResumeMatch();
+    }
+
+    private void ResumeMatch()
+    {
+        Time.timeScale = 1f;
+    }
+
+    // FIN DE PARTIDA
+    private void EndMatchForEveryone()
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+
+        matchEndedPanel.SetActive(true);
+
+        matchEndedButton.SetActive(true);
+        matchEndedButton.GetComponent<UnityEngine.UI.Button>().onClick.RemoveAllListeners();
+        matchEndedButton.GetComponent<UnityEngine.UI.Button>().onClick.AddListener(() =>
+        {
+            PhotonNetwork.LoadLevel("LobbyScene");
+        });
+    }
+
+    // HELPERS
+    private int CountPlayers()
+    {
+        return PhotonNetwork.PlayerList.Length;
+    }
+
+    private bool TeamAHasPlayers()
+    {
+        foreach (var p in PhotonNetwork.PlayerList)
+        {
+            if (p.CustomProperties.TryGetValue("team", out object t) && (string)t == "A")
+                return true;
+        }
+        return false;
+    }
+
+    private bool TeamBHasPlayers()
+    {
+        foreach (var p in PhotonNetwork.PlayerList)
+        {
+            if (p.CustomProperties.TryGetValue("team", out object t) && (string)t == "B")
+                return true;
+        }
+        return false;
+    }
+
     private void OnApplicationQuit()
     {
-
         PhotonNetwork.LeaveRoom();
         PhotonNetwork.Disconnect();
     }
 }
-
