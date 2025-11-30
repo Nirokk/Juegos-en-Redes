@@ -66,7 +66,7 @@ public class GameStarter : MonoBehaviourPunCallbacks
         if (myTeam == "A" || myTeam == "B")
         {
             GameObject playerObject = PhotonNetwork.Instantiate("NewPlayer", spawnPos, Quaternion.identity);
-            DisconnectionHandler.RegisterPlayerInstance(PhotonNetwork.LocalPlayer.ActorNumber, playerObject);
+            //DisconnectionHandler.RegisterPlayerInstance(PhotonNetwork.LocalPlayer.ActorNumber, playerObject);
 
             if (myTeam == "A") _playersInAteam.Add(PhotonNetwork.LocalPlayer);
             else _playersInBteam.Add(PhotonNetwork.LocalPlayer);
@@ -78,27 +78,27 @@ public class GameStarter : MonoBehaviourPunCallbacks
         SceneManager.LoadScene("LobbyScene");
     }
 
-    public override void OnPlayerLeftRoom(Player otherPlayer)
-    {
-        CleanupPlayerObjects(otherPlayer);
-    }
+    //public override void OnPlayerLeftRoom(Player otherPlayer)
+    //{
+    //    CleanupPlayerObjects(otherPlayer);
+    //}
 
-    private void CleanupPlayerObjects(Player player)
-    {
+    //private void CleanupPlayerObjects(Player player)
+    //{
         
-        PhotonView[] allViews = FindObjectsOfType<PhotonView>();
-        foreach (PhotonView view in allViews)
-        {
-            if (view.Owner != null && view.Owner.ActorNumber == player.ActorNumber)
-            {
-                PhotonNetwork.Destroy(view.gameObject);
-            }
-        }
-        CheckPlayersCount();
-    }
+    //    PhotonView[] allViews = FindObjectsOfType<PhotonView>();
+    //    foreach (PhotonView view in allViews)
+    //    {
+    //        if (view.Owner != null && view.Owner.ActorNumber == player.ActorNumber)
+    //        {
+    //            PhotonNetwork.Destroy(view.gameObject);
+    //        }
+    //    }
+    //    CheckPlayersCount();
+    //}
 
-    private void CheckPlayersCount()
-    {
-        NetworkManager.Instance.LoadSceneForEveryone("LobbyScene");
-    }
+    //private void CheckPlayersCount()
+    //{
+    //    NetworkManager.Instance.LoadSceneForEveryone("LobbyScene");
+    //}
 }
