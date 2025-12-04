@@ -21,24 +21,9 @@ public class MainMenuLauncher : MonoBehaviourPunCallbacks
         connectionButton.onClick.AddListener(ConnectToServer);
         inputField.onValueChanged.AddListener(VerifyName);
 
-        // Si no había partida previa, ocultamos el botón
-        if (PlayerPrefs.GetInt("PendingReconnect", 0) == 0)
-        {
-            reconnectButton.gameObject.SetActive(false);
-            return;
-        }
+        reconnectButton.gameObject.SetActive(PlayerPrefs.GetInt("PendingReconnect", 0) == 1);
 
-        // Si había partida previa, intentar comprobar si la sala existe
-        string lastRoom = PlayerPrefs.GetString("LastRoomName", "");
-
-        if (string.IsNullOrEmpty(lastRoom))
-        {
-            reconnectButton.gameObject.SetActive(false);
-            return;
-        }
-
-        reconnectButton.gameObject.SetActive(true);
-        reconnectButton.onClick.AddListener(() => ReconnectToRoom(lastRoom));
+        reconnectButton.onClick.AddListener(ReconnectToRoom);
     }
 
     private void VerifyName(string newName)
@@ -65,53 +50,18 @@ public class MainMenuLauncher : MonoBehaviourPunCallbacks
         LootLockerBootStrap.SetPlayerName(nickname);
         connectionButton.interactable = false;
 
-        reconnectButton.gameObject.SetActive(false);
-
+        
     }
     public void GoToLobby()
     {
         SceneManager.LoadScene("LobbyScene");
     }
 
-    public override void OnConnectedToMaster()
-    {
-        Debug.Log("OnConnectedToMaster (MainMenuLauncher)");
-
-        if (!string.IsNullOrEmpty(pendingReconnectRoom))
-        {
-            Debug.Log("Intentando reconectar a " + pendingReconnectRoom);
-            PhotonNetwork.JoinRoom(pendingReconnectRoom);
-            pendingReconnectRoom = "";
-        }
-    }
-
-    public void ReconnectToRoom(string roomName)
+    public void ReconnectToRoom()
     {
         reconnectButton.interactable = false;
 
-        StartCoroutine(ReconnectRoutine(roomName));
-    }
-
-    private string pendingReconnectRoom = "";
-
-    private IEnumerator ReconnectRoutine(string roomName)
-    {
-        pendingReconnectRoom = roomName;
-
-        PhotonNetwork.ConnectUsingSettings();
-
-        // Esperamos hasta que estemos conectados y listos (estamos en Master y podemos JoinRoom)
-        while (!PhotonNetwork.IsConnectedAndReady)
-            yield return null;
-    }
-
-
-
-    private void SaveReconnectData()
-    {
-        PlayerPrefs.SetInt("PendingReconnect", 1);
-        PlayerPrefs.SetString("LastRoomName", PhotonNetwork.CurrentRoom.Name);
-        PlayerPrefs.Save();
+        PhotonNetwork.ReconnectAndRejoin();
     }
 
     public override void OnJoinedRoom()
@@ -121,7 +71,6 @@ public class MainMenuLauncher : MonoBehaviourPunCallbacks
 
         SceneManager.LoadScene("GameScene");
     }
-
 
     //Antes usabamos el callback de Photon, pero ahora usamos el de NetworkManager
     //public override void OnConnectedToMaster()
