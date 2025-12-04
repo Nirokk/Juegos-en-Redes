@@ -11,7 +11,6 @@ public class MainMenuLauncher : MonoBehaviourPunCallbacks
 {
     public TMP_InputField inputField;
     public Button connectionButton;
-    public Button reconnectButton;
     private const string nicknameKey = "playerNickname";
     private string nickname;
 
@@ -20,10 +19,7 @@ public class MainMenuLauncher : MonoBehaviourPunCallbacks
     {
         connectionButton.onClick.AddListener(ConnectToServer);
         inputField.onValueChanged.AddListener(VerifyName);
-
-        reconnectButton.gameObject.SetActive(PlayerPrefs.GetInt("PendingReconnect", 0) == 1);
-
-        reconnectButton.onClick.AddListener(ReconnectToRoom);
+        
     }
 
     private void VerifyName(string newName)
@@ -43,8 +39,7 @@ public class MainMenuLauncher : MonoBehaviourPunCallbacks
 
     public void ConnectToServer ()
     {
-        PlayerPrefs.SetInt("PendingReconnect", 0);
-        PlayerPrefs.Save();
+
         NetworkManager.Instance.ConnectToServer(GoToLobby);
         NetworkManager.Instance.SetNickname(nickname);
         LootLockerBootStrap.SetPlayerName(nickname);
@@ -57,20 +52,6 @@ public class MainMenuLauncher : MonoBehaviourPunCallbacks
         SceneManager.LoadScene("LobbyScene");
     }
 
-    public void ReconnectToRoom()
-    {
-        reconnectButton.interactable = false;
-
-        PhotonNetwork.ReconnectAndRejoin();
-    }
-
-    public override void OnJoinedRoom()
-    {
-        PlayerPrefs.SetInt("PendingReconnect", 0);
-        PlayerPrefs.Save();
-
-        SceneManager.LoadScene("GameScene");
-    }
 
     //Antes usabamos el callback de Photon, pero ahora usamos el de NetworkManager
     //public override void OnConnectedToMaster()
