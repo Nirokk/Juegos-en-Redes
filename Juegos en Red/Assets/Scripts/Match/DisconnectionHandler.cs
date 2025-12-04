@@ -22,9 +22,6 @@ public class DisconnectionHandler : MonoBehaviourPunCallbacks
     public GameObject matchEndedPanel;
     public GameObject matchEndedButton;
 
-    public static double pausedElapsed = -1;
-    public static bool matchPaused = false;
-
     public static Dictionary<int, GameObject> playerInstances = new Dictionary<int, GameObject>();
 
     public static void RegisterPlayerInstance(int actorNumber, GameObject playerObj)
@@ -59,17 +56,6 @@ public class DisconnectionHandler : MonoBehaviourPunCallbacks
     // RUTINA PRINCIPAL
     private IEnumerator HandleDisconnectRoutine(Player disconnectedPlayer)
     {
-        if (PhotonNetwork.IsMasterClient)
-        {
-            matchPaused = true;
-
-            if (PhotonNetwork.CurrentRoom.CustomProperties.ContainsKey("MatchStartTime"))
-            {
-                double startTime = (double)PhotonNetwork.CurrentRoom.CustomProperties["MatchStartTime"];
-                pausedElapsed = PhotonNetwork.Time - startTime;
-            }
-        }
-        MatchTimer.isPausedByDisconnection = true;
         Time.timeScale = 0f;
 
         reconnectPanel.SetActive(true);
@@ -128,19 +114,6 @@ public class DisconnectionHandler : MonoBehaviourPunCallbacks
 
     private void ResumeMatch()
     {
-        if (PhotonNetwork.IsMasterClient && matchPaused && pausedElapsed >= 0)
-        {
-            double newStartTime = PhotonNetwork.Time - pausedElapsed;
-
-            ExitGames.Client.Photon.Hashtable props = new ExitGames.Client.Photon.Hashtable();
-            props["MatchStartTime"] = newStartTime;
-            PhotonNetwork.CurrentRoom.SetCustomProperties(props);
-        }
-
-        matchPaused = false;
-        MatchTimer.isPausedByDisconnection = false;
-        pausedElapsed = -1;
-
         Time.timeScale = 1f;
     }
 
