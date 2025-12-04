@@ -15,7 +15,7 @@ public class ButtonsGameScene : MonoBehaviour
     public void ButtonDesconectarse()
     {
         PhotonNetwork.Disconnect();
-        SceneManager.LoadScene("MainMenu");
+        SceneManager.LoadScene("Main Menu");
     }
 
     public void ButtonCerrar()

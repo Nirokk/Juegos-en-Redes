@@ -143,6 +143,8 @@ public class MatchTimer : MonoBehaviourPunCallbacks
     {
         Time.timeScale = 1f;
         PhotonNetwork.AutomaticallySyncScene = true;
+        if (NetworkManager.Instance != null)
+            NetworkManager.Instance.CleanSession();
         PhotonNetwork.LeaveRoom();
         SceneManager.LoadScene("LobbyScene");
     }

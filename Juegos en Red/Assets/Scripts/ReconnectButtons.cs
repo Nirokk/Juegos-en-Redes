@@ -1,5 +1,6 @@
 using UnityEngine;
 using Photon.Pun;
+using System;
 
 public class ReconnectButtons : MonoBehaviourPunCallbacks
 {
@@ -15,6 +16,7 @@ public class ReconnectButtons : MonoBehaviourPunCallbacks
     private void CheckIfCanReconnect()
     {
         bool canTryReconnect =
+            NetworkManager.wasInMatchBefore &&
             !PhotonNetwork.InRoom &&
             PhotonNetwork.NetworkingClient != null &&
             PhotonNetwork.NetworkingClient.LoadBalancingPeer != null;
@@ -26,10 +28,33 @@ public class ReconnectButtons : MonoBehaviourPunCallbacks
 
     public void ButtonReconectar()
     {
-        if (!PhotonNetwork.ReconnectAndRejoin())
+        // Si ya estamos conectados a Photon, probamos Rejoin
+        if (PhotonNetwork.IsConnected)
         {
-            panelErrorReconnect.SetActive(true);
+            if (NetworkManager.Instance != null &&
+                NetworkManager.wasInMatchBefore &&
+                !string.IsNullOrEmpty(NetworkManager.Instance.GetCurrentRoomName()))
+            {
+                PhotonNetwork.RejoinRoom(NetworkManager.Instance.GetCurrentRoomName());
+            }
+            else
+            {
+                ShowErrorPanel();
+            }
         }
+        else
+        {
+            // Caso donde realmente hubo desconexión del servidor usamos ReconnectAndRejoin
+            if (!PhotonNetwork.ReconnectAndRejoin())
+            {
+                ShowErrorPanel();
+            }
+        }
+    }
+
+    private void ShowErrorPanel()
+    {
+        panelErrorReconnect.SetActive(true);
     }
 
     public void ButtonExitReconnect()

@@ -24,6 +24,8 @@ public class NetworkManager :  MonoBehaviourPun
     private static NetworkManager _instance;
     public static NetworkManager Instance { get => _instance; set => _instance = value; }
 
+    public static bool wasInMatchBefore = false;
+
     private void Awake()
     {
         if (_instance != null && _instance != this)
@@ -90,8 +92,15 @@ public class NetworkManager :  MonoBehaviourPun
     }
     private void CheckIfJoinedRoom()
     {
+        wasInMatchBefore = true;
         OnJoinedRoom?.Invoke();
     }
+
+    public void CleanSession()
+    {
+        wasInMatchBefore = false;
+    }
+
     public void CreateRoom(string roomName)
     {
         photonManager.CreateRoom(roomName);
