@@ -534,7 +534,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 369783713}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1859604108}
+        m_TargetAssemblyTypeName: ReconnectButtons, Assembly-CSharp
+        m_MethodName: ButtonReconectar
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &369783713
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1497,7 +1509,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1106466405}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1859604108}
+        m_TargetAssemblyTypeName: ReconnectButtons, Assembly-CSharp
+        m_MethodName: ButtonExitError
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1106466405
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1702,6 +1726,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1438354226}
   - component: {fileID: 1438354225}
+  - component: {fileID: 1438354227}
   m_Layer: 0
   m_Name: Main Menu
   m_TagString: Untagged
@@ -1738,6 +1763,24 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1438354227
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1438354224}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e6f48daf246d66c4e9cd8a27fb88d831, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pvCache: {fileID: 0}
+  panelRejoinDetectado: {fileID: 0}
+  txtInfoRejoin: {fileID: 0}
+  panelRejoinFallido: {fileID: 0}
+  txtErrorRejoin: {fileID: 0}
+  gameSceneName: GameScene
 --- !u!1 &1493063066
 GameObject:
   m_ObjectHideFlags: 0
@@ -2446,6 +2489,52 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1859604107
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1859604109}
+  - component: {fileID: 1859604108}
+  m_Layer: 0
+  m_Name: ReconnectButtons
+  m_TagString: Untagged
+  m_Icon: {fileID: 5132851093641282708, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1859604108
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1859604107}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4086216c7f012f84ba92d6b9242b8828, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  panelReconnect: {fileID: 1656993083}
+  panelErrorReconnect: {fileID: 720060813}
+--- !u!4 &1859604109
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1859604107}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 958.9362, y: 544.0401, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 6
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2011608301
 GameObject:
   m_ObjectHideFlags: 0
@@ -2888,7 +2977,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2091979168}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1859604108}
+        m_TargetAssemblyTypeName: ReconnectButtons, Assembly-CSharp
+        m_MethodName: ButtonExitReconnect
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &2091979168
 MonoBehaviour:
   m_ObjectHideFlags: 0

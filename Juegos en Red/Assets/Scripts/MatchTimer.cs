@@ -44,6 +44,8 @@ public class MatchTimer : MonoBehaviourPunCallbacks
 
     private void Update()
     {
+        if (DisconnectionPauseManager.gamePaused) return;
+
         if (matchEnded) return;
 
         if (PhotonNetwork.CurrentRoom.CustomProperties.ContainsKey("MatchStartTime"))
@@ -141,6 +143,7 @@ public class MatchTimer : MonoBehaviourPunCallbacks
     {
         Time.timeScale = 1f;
         PhotonNetwork.AutomaticallySyncScene = true;
+        PhotonNetwork.LeaveRoom();
         SceneManager.LoadScene("LobbyScene");
     }
 
