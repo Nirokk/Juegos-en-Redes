@@ -25,6 +25,7 @@ public class NetworkManager :  MonoBehaviourPun
     public static NetworkManager Instance { get => _instance; set => _instance = value; }
 
     public static bool wasInMatchBefore = false;
+    public static string lastGameScene = "";
 
     private void Awake()
     {

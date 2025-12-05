@@ -38,6 +38,7 @@ public class GameStarter : MonoBehaviourPunCallbacks
     private void Start()
     {
         SpawnPlayer();
+        NetworkManager.lastGameScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
     }
 
     // Método nuevo para que el Player pida un punto de spawn
@@ -91,14 +92,15 @@ public class GameStarter : MonoBehaviourPunCallbacks
         {
             if (view.Owner != null && view.Owner.ActorNumber == player.ActorNumber)
             {
-                PhotonNetwork.Destroy(view.gameObject);
+                //PhotonNetwork.Destroy(view.gameObject); //Antes lo destruiamos
+                view.gameObject.SetActive(false); //Ahora solo lo desactivamos
             }
         }
-        CheckPlayersCount();
+        //CheckPlayersCount();
     }
 
-    private void CheckPlayersCount()
-    {
-        NetworkManager.Instance.LoadSceneForEveryone("LobbyScene");
-    }
+    //private void CheckPlayersCount()
+    //{
+    //    NetworkManager.Instance.LoadSceneForEveryone("LobbyScene");
+    //}
 }

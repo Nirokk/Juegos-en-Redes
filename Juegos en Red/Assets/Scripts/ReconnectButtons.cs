@@ -1,6 +1,7 @@
 using UnityEngine;
 using Photon.Pun;
 using System;
+using UnityEngine.SceneManagement;
 
 public class ReconnectButtons : MonoBehaviourPunCallbacks
 {
@@ -36,6 +37,7 @@ public class ReconnectButtons : MonoBehaviourPunCallbacks
                 !string.IsNullOrEmpty(NetworkManager.Instance.GetCurrentRoomName()))
             {
                 PhotonNetwork.RejoinRoom(NetworkManager.Instance.GetCurrentRoomName());
+                SceneManager.LoadScene(NetworkManager.lastGameScene);
             }
             else
             {

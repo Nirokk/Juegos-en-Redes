@@ -31,8 +31,20 @@ public class DisconnectionPauseManager : MonoBehaviourPunCallbacks
 
     public static bool gamePaused = false;
 
+    private static DisconnectionPauseManager _instance;
+    public static DisconnectionPauseManager Instance { get => _instance; }
+
     private void Awake()
     {
+        if (_instance == null)
+        {
+            _instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
         DisableAllPanels();
     }
 
@@ -84,6 +96,11 @@ public class DisconnectionPauseManager : MonoBehaviourPunCallbacks
         currentTimer = timeToResumeMatch;
 
         photonView.RPC(nameof(RPC_ShowReconnectPanel), RpcTarget.AllBuffered);
+
+        if (DisconnectionHandler.playerInstances.TryGetValue(newPlayer.ActorNumber, out GameObject playerObj))
+        {
+            playerObj.SetActive(true);
+        }
     }
 
     private void CountTeams()
