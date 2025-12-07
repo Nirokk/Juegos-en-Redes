@@ -26,6 +26,8 @@ public class NetworkManager :  MonoBehaviourPun
 
     public static bool wasInMatchBefore = false;
     public static string lastGameScene = "";
+    public static string lastRoomName = "";
+    public static int lastRoomID = 0;
 
     private void Awake()
     {
@@ -106,7 +108,8 @@ public class NetworkManager :  MonoBehaviourPun
     {
         photonManager.CreateRoom(roomName);
         //photonManager.CreateRoom(roomName, CheckRoomCreated);
-        
+        lastRoomName = roomName;
+        lastRoomID = photonManager.photonView.ControllerActorNr;
 
     }
     private void CheckRoomCreated(List<RoomInfo> rooms)
@@ -126,8 +129,10 @@ public class NetworkManager :  MonoBehaviourPun
     public void JoinSelectedRoom(string roomName)
     {
         photonManager.JoinRoom(roomName);
+        lastRoomName = roomName ;
+        lastRoomID = photonManager.photonView.ControllerActorNr;
     }
-    
+
     #endregion
     #region Teams Controller
     public void RegisterTeams(int teamAPlayers, int teamBPlayers)

@@ -36,8 +36,10 @@ public class ReconnectButtons : MonoBehaviourPunCallbacks
                 NetworkManager.wasInMatchBefore &&
                 !string.IsNullOrEmpty(NetworkManager.Instance.GetCurrentRoomName()))
             {
-                PhotonNetwork.RejoinRoom(NetworkManager.Instance.GetCurrentRoomName());
-                SceneManager.LoadScene(NetworkManager.lastGameScene);
+                PhotonNetwork.RejoinRoom(NetworkManager.lastRoomName);
+                this.photonView.ControllerActorNr = NetworkManager.lastRoomID;
+                SceneManager.LoadScene("GameScene");
+                Debug.Log(this.photonView.ViewID);
             }
             else
             {
