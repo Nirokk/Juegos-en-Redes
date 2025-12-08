@@ -1,62 +1,93 @@
+﻿using UnityEngine;
 using LootLocker.Requests;
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 
 public class LootLockerBootStrap : MonoBehaviour
 {
     public static bool SessionStarted { get; private set; }
+    public static LootLockerBootStrap Instance { get; private set; }
 
-    public string playerIdentifier = DateTime.Now.ToString();
+    public static int playerID; // 👈 ID real de LootLocker
+    private string playerIdentifier; // Usado solo para iniciar sesión
 
-    private static LootLockerBootStrap _instance;
-    public static LootLockerBootStrap Instance { get => _instance; set => _instance = value; }
     private void Awake()
     {
+        // Singleton seguro
+        if (Instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
         DontDestroyOnLoad(gameObject);
+
+        Init();
+    }
+
+    private void Init()
+    {
+        // Generar un ID persistente solo para iniciar sesión Guest
+        if (!PlayerPrefs.HasKey("LL_GUEST_IDENTIFIER"))
+        {
+            string guid = Guid.NewGuid().ToString();
+            PlayerPrefs.SetString("LL_GUEST_IDENTIFIER", guid);
+        }
+
+        playerIdentifier = PlayerPrefs.GetString("LL_GUEST_IDENTIFIER");
+
         StartGuest();
     }
 
-
     void StartGuest()
     {
-       
         LootLockerSDKManager.StartGuestSession(playerIdentifier, response =>
         {
             if (!response.success)
             {
-                Debug.LogError("Fallo");
-                Debug.LogError(response.errorData.message);
+                Debug.LogError("[LootLocker] Error al iniciar sesión: " + response.errorData.message);
                 return;
             }
+
+            // GUARDAR ID REAL DEL PLAYER DEVUELTO POR LOOTLOCKER 👇
+            playerID = response.player_id;
+            PlayerPrefs.SetInt("LL_PLAYER_ID", playerID);
+            PlayerPrefs.Save();
+
             SessionStarted = true;
-            Debug.Log("Conectado");
+            Debug.Log($"[LootLocker] Sesión iniciada. Player ID real: {playerID}");
         });
     }
+
     public static void SetPlayerName(string name)
     {
+        if (!SessionStarted)
+        {
+            Debug.LogWarning("[LootLocker] No se puede asignar nombre, sesión no iniciada aún.");
+            return;
+        }
+
         LootLockerSDKManager.SetPlayerName(name, resp =>
         {
-            if (!resp.success) Debug.LogError("Fallo nombre");
-            else Debug.Log("Se puso el nombre");
+            if (!resp.success) Debug.LogError("[LootLocker] Error asignando nombre");
+            else Debug.Log("[LootLocker] Nombre asignado correctamente");
         });
     }
-    public static void SubmitScore(string Id, int score, string leaderboardKey, System.Action<bool> onDone = null)
+
+    public static void SubmitScore(int score, string leaderboardKey, Action<bool> onDone = null)
     {
-        LootLockerSDKManager.SubmitScore(Id, score, leaderboardKey, response =>
+        // Solo playerID real!
+        LootLockerSDKManager.SubmitScore(playerID.ToString(), score, leaderboardKey, response =>
         {
             if (!response.success)
             {
-                Debug.LogError("Fallo el score");
+                Debug.LogError("[LootLocker] Fallo el score");
                 onDone?.Invoke(false);
-
                 return;
             }
-            Debug.Log("Se envio el score");
+            Debug.Log("[LootLocker] Score enviado correctamente!");
             onDone?.Invoke(true);
         });
-        
     }
 }
 

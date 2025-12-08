@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using Photon.Pun;
 
 public class Bullet : MonoBehaviourPun
@@ -23,11 +23,9 @@ public class Bullet : MonoBehaviourPun
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        Debug.Log(this.gameObject.name);
+        // ⚠️ Ahora solo el Master procesa impactos
+        if (!PhotonNetwork.IsMasterClient) return;
 
-        if (!photonView.IsMine) return; // Solo el due�o procesa el impacto
-
-        // Ejemplo: si choca contra un jugador
         var target = collision.GetComponent<Player_Model>();
         if (target != null)
         {
@@ -38,8 +36,5 @@ public class Bullet : MonoBehaviourPun
         {
             PhotonNetwork.Destroy(gameObject);
         }
-
-
-        //PhotonNetwork.Destroy(gameObject);
     }
 }
