@@ -152,6 +152,7 @@ public class GameStarter : MonoBehaviourPunCallbacks
 
     public override void OnLeftRoom()
     {
+        Time.timeScale = 1f;
         SceneManager.LoadScene("LobbyScene");
     }
 

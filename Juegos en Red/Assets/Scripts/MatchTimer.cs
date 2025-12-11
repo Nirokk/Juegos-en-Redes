@@ -21,13 +21,17 @@ public class MatchTimer : MonoBehaviourPunCallbacks
     private bool matchEnded = false;
 
     public static bool damagePhase = false;
+    public static MatchTimer Instance;
 
 
 
     public Player_Model player_model;
 
     //public static Action OnMatchEnded;
-
+    private void Awake()
+    {
+        Instance = this;
+    }
     private void Start()
     {
         if (PhotonNetwork.IsMasterClient)
@@ -50,7 +54,7 @@ public class MatchTimer : MonoBehaviourPunCallbacks
 
     private void Update()
     {
-        if (DisconnectionPauseManager.gamePaused) return;
+        //if (DisconnectionPauseManager.gamePaused) return;
 
         if (matchEnded) return;
 
@@ -81,6 +85,17 @@ public class MatchTimer : MonoBehaviourPunCallbacks
             //    EndMatch();
             //}
         }
+    }
+
+    public void ForceStopMatch()
+    {
+        matchEnded = true;
+        Time.timeScale = 0f;
+    }
+
+    public void StopTimerCompletely()
+    {
+        matchEnded = true;
     }
 
     private void UpdateTimerUI(double remainingTime)

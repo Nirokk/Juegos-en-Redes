@@ -59,6 +59,7 @@ MonoBehaviour:
   - RPC_UpdateWaitingTimer
   - RPC_PauseGameAll
   - RPC_ResumeGameAll
+  - RPC_ForceEndMatch
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1
