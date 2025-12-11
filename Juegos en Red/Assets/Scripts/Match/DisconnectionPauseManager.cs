@@ -26,6 +26,8 @@ public class DisconnectionPauseManager : MonoBehaviourPunCallbacks
     private float currentTimer;
     private bool waitingReconnect;
 
+    private double pausedElapsed = 0;
+
     // Sistema de votación
     private Dictionary<int, bool> playerVotes = new Dictionary<int, bool>();
 
@@ -168,11 +170,28 @@ public class DisconnectionPauseManager : MonoBehaviourPunCallbacks
     private void RPC_ResumeMatch()
     {
         HideAllPanels();
+        Time.timeScale = 1f;
         MatchTimer.Instance.matchPaude = false;
+
+        // Ajustar MatchStartTime para que el timer no se "salte"
+        if (PhotonNetwork.IsMasterClient)
+        {
+            ExitGames.Client.Photon.Hashtable props = new ExitGames.Client.Photon.Hashtable();
+            props["MatchStartTime"] = PhotonNetwork.Time - pausedElapsed;
+            PhotonNetwork.CurrentRoom.SetCustomProperties(props);
+        }
     }
 
-    public void PauseGame()
+    private void PauseGame()
     {
         MatchTimer.Instance.matchPaude = true;
+        Time.timeScale = 0f;
+
+        // Guardar el tiempo que pasó hasta ahora
+        if (PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue("MatchStartTime", out object start))
+        {
+            double startTime = (double)start;
+            pausedElapsed = PhotonNetwork.Time - startTime;
+        }
     }
 }
