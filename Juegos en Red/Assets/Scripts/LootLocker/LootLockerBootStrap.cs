@@ -74,20 +74,25 @@ public class LootLockerBootStrap : MonoBehaviour
         });
     }
 
-    public static void SubmitScore(int score, string leaderboardKey, Action<bool> onDone = null)
+    public static void SubmitScore(int KilleNumber,int score, string leaderboardKey, Action<bool> onDone = null)
     {
-        // Solo playerID real!
-        LootLockerSDKManager.SubmitScore(playerID.ToString(), score, leaderboardKey, response =>
+        Debug.LogError("my killernumber is" + KilleNumber + "my playerid is:" + playerID);
+        if(KilleNumber == playerID)
         {
-            if (!response.success)
+            LootLockerSDKManager.SubmitScore(playerID.ToString(), score, leaderboardKey, response =>
             {
-                Debug.LogError("[LootLocker] Fallo el score");
-                onDone?.Invoke(false);
-                return;
-            }
-            Debug.Log("[LootLocker] Score enviado correctamente!");
-            onDone?.Invoke(true);
-        });
+                if (!response.success)
+                {
+                    Debug.LogError("[LootLocker] Fallo el score");
+                    onDone?.Invoke(false);
+                    return;
+                }
+                Debug.Log("[LootLocker] Score enviado correctamente!");
+                onDone?.Invoke(true);
+            });
+        }
+        // Solo playerID real!
+        
     }
 }
 

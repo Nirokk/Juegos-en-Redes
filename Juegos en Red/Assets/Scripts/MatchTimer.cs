@@ -50,7 +50,7 @@ public class MatchTimer : MonoBehaviourPunCallbacks
         if (endMatchPanel != null)
             endMatchPanel.SetActive(false);
 
-        player_model = FindObjectOfType<Player_Model>();
+        //player_model = FindObjectOfType<Player_Model>();
     }
 
     private void Update()
@@ -120,10 +120,9 @@ public class MatchTimer : MonoBehaviourPunCallbacks
         PhotonNetwork.CurrentRoom.SetCustomProperties(h);
 
         player_model = FindObjectOfType<Player_Model>();
-        if (photonView.IsMine)
-        {
-            player_model.SaveKillsToLootLocker();
-        }
+
+        player_model.SaveKillsToLootLocker();
+        
             
         // Mostramos el panel de fin
         if (endMatchPanel != null)

@@ -27,6 +27,7 @@ public class Player_Model : MonoBehaviourPunCallbacks, IMove_Look
 
     private bool _isDead = false;
 
+    public int myKillerActorNumber;
 
     public int personalKills;
     //public string playerID => PlayerPrefs.GetString("LL_ID");
@@ -143,11 +144,12 @@ public class Player_Model : MonoBehaviourPunCallbacks, IMove_Look
         if (_currentLife <= 0)
         {
             int killerActorNumber = info;
+            myKillerActorNumber = killerActorNumber;
             Photon.Realtime.Player killerPlayer = PhotonNetwork.CurrentRoom.GetPlayer(killerActorNumber);
             _photonView.RPC("AddPersonalKill", RpcTarget.All, killerActorNumber);
             Die(killerActorNumber);
-            
-            
+
+
         }
     }
 
@@ -194,7 +196,7 @@ public class Player_Model : MonoBehaviourPunCallbacks, IMove_Look
 
         // 1) Avisar al master para sumar puntos de equipo
         _photonView.RPC("ReportKillToMaster", RpcTarget.All, killerActorNumber, PhotonNetwork.LocalPlayer.ActorNumber);
-        
+
         StartCoroutine(RespawnRoutine());
     }
     private PhotonView GetPhotonViewByActorNumber(int actorNumber)
@@ -311,85 +313,14 @@ public class Player_Model : MonoBehaviourPunCallbacks, IMove_Look
 
     public void SaveKillsToLootLocker()
     {
-        LootLockerBootStrap.SubmitScore(personalKills, "mostkills", (success) =>
+        LootLockerBootStrap.SubmitScore(myKillerActorNumber, personalKills, "mostkills", (success) =>
         {
             if (success)
                 Debug.Log($"📌 Kills guardadas = {personalKills}");
             else
                 Debug.LogError("❌ Error enviando kills.");
         });
+        
     }
-    public override void OnRoomPropertiesUpdate(ExitGames.Client.Photon.Hashtable changedProps)
-    {
-        if (changedProps.ContainsKey("MatchEnded") )
-        {
-            bool ended = (bool)changedProps["MatchEnded"];
-            if (ended)
-            {
-                Debug.Log($"Partida terminada. Enviando kills: {personalKills}");
-                SaveKillsToLootLocker();
-            }
-        }
-    }
-    #endregion
+ #endregion 
 }
-//    [PunRPC]
-//    public void
-//    (int killerNumber)
-//    {
-//        Debug.LogError("Añadiendo kill personal. KillerNumber: " + killerNumber + ", Mi ActorNumber: " + _photonView.Owner.ActorNumber);
-//        if (_photonView.Owner.ActorNumber == killerNumber)
-//        {
-
-//            personalKills++;
-//            Debug.LogError("Kills personales de " + _photonView.Owner.NickName + ": " + personalKills);
-//        }
-
-//    }
-//    public override void OnRoomPropertiesUpdate(ExitGames.Client.Photon.Hashtable changedProps)
-//    {
-//        if (changedProps.ContainsKey("MatchEnded") && _photonView.IsMine)
-//        {
-//            bool ended = (bool)changedProps["MatchEnded"];
-//            if (ended)
-//            {
-//                Debug.Log($"Partida terminada. Enviando kills: {personalKills}");
-//                TrySendKills();
-//            }
-//        }
-//    }
-//    public void SendPlayerKills()
-//    {
-//            Debug.LogError("Enviando kills a LootLocker: " + personalKills);
-//            LootLockerBootStrap.SubmitScore(playerID ,personalKills, "mostkills", success =>
-//            {
-//                if (success)
-//                {
-//                    Debug.Log("Puntuación enviada correctamente.");
-//                }
-//                else
-//                {
-//                    Debug.LogError("Error al enviar la puntuación.");
-//                }
-//            });
-
-//    }
-//    public override void OnDisable()
-//    {
-//        TrySendKills();
-//    }
-
-//    public override void OnLeftRoom()
-//    {
-//        TrySendKills();
-//    }
-
-//    private void TrySendKills()
-//    {
-//        if (_photonView != null && _photonView.IsMine && personalKills >= 0)
-//        {
-//            Debug.Log($"[PlayerModel] Guardando kills: {personalKills}");
-//            LootLockerBootStrap.SubmitScore(playerID, personalKills, "mostkills");
-//        }
-//    }
-//}
