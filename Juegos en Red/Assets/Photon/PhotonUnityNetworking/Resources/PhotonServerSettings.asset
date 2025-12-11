@@ -60,6 +60,12 @@ MonoBehaviour:
   - RPC_PauseGameAll
   - RPC_ResumeGameAll
   - RPC_ForceEndMatch
+  - RPC_PlayerVotedContinue
+  - RPC_ShowReconnectCountdown
+  - RPC_StartVoteContinuePanel
+  - RPC_UpdateCountdownUI
+  - RPC_UpdateVotesUI
+  - RPC_PlayerVotedNo
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1

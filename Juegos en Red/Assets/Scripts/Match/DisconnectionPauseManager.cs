@@ -1,41 +1,169 @@
 ﻿using Photon.Pun;
 using Photon.Realtime;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
+using System.Collections.Generic;
 
 public class DisconnectionPauseManager : MonoBehaviourPunCallbacks
 {
-    [Header("UI Panel")]
-    public GameObject panelForceMatchEnded;
+    [Header("UI Panels")]
+    public GameObject panelReconnectCountdown;   // Panel del minuto
+    public GameObject panelVoteContinue;         // Panel de "seguir sin él"
+
+    [Header("UI References")]
+    public Slider countdownSlider;
+    public TextMeshProUGUI countdownText;
+
+    public Button voteContinueButton;
+    public TextMeshProUGUI votesText;
+
+    public Button voteNoButton;
+
+    [Header("Timers")]
+    public float reconnectTime = 60f;
+
+    private float currentTimer;
+    private bool waitingReconnect;
+
+    // Sistema de votación
+    private Dictionary<int, bool> playerVotes = new Dictionary<int, bool>();
+
+    private void Awake()
+    {
+        HideAllPanels();
+    }
+
+    private void HideAllPanels()
+    {
+        panelReconnectCountdown?.SetActive(false);
+        panelVoteContinue?.SetActive(false);
+    }
 
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
-        Debug.Log("[DPM] Un jugador se desconectó: " + otherPlayer.NickName);
+        waitingReconnect = true;
+        currentTimer = reconnectTime;
 
-        // Solo el MasterClient decide finalizar la partida
-        if (PhotonNetwork.IsMasterClient)
+        photonView.RPC(nameof(RPC_ShowReconnectCountdown), RpcTarget.All);
+        PauseGame();
+    }
+
+    private void Update()
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+        if (!waitingReconnect) return;
+
+        currentTimer -= Time.unscaledDeltaTime;
+
+        photonView.RPC(nameof(RPC_UpdateCountdownUI), RpcTarget.All, currentTimer);
+
+        if (currentTimer <= 0f)
         {
-            photonView.RPC(nameof(RPC_ForceEndMatch), RpcTarget.All);
+            waitingReconnect = false;
+            photonView.RPC(nameof(RPC_StartVoteContinuePanel), RpcTarget.All);
+        }
+    }
+
+
+    [PunRPC]
+    private void RPC_ShowReconnectCountdown()
+    {
+        HideAllPanels();
+        panelReconnectCountdown.SetActive(true);
+        countdownSlider.maxValue = reconnectTime;
+        countdownSlider.value = reconnectTime;
+        PauseGame();
+    }
+
+    [PunRPC]
+    private void RPC_UpdateCountdownUI(float timeLeft)
+    {
+        countdownSlider.value = timeLeft;
+        countdownText.text = Mathf.Ceil(timeLeft).ToString();
+    }
+
+    public override void OnPlayerEnteredRoom(Player newPlayer)
+    {
+        photonView.RPC(nameof(RPC_ResumeMatch), RpcTarget.All);
+    }
+
+
+    [PunRPC]
+    private void RPC_StartVoteContinuePanel()
+    {
+        HideAllPanels();
+        panelVoteContinue.SetActive(true);
+
+        // Inicializamos votos en NO
+        playerVotes.Clear();
+        foreach (Player p in PhotonNetwork.PlayerList)
+            playerVotes[p.ActorNumber] = false;
+
+        votesText.text = $"0 / {playerVotes.Count}";
+
+        voteContinueButton.onClick.RemoveAllListeners();
+        voteContinueButton.onClick.AddListener(OnVoteContinueClicked);
+        voteNoButton.onClick.RemoveAllListeners();
+        voteNoButton.onClick.AddListener(OnVoteNoClicked);
+    }
+
+    private void OnVoteContinueClicked()
+    {
+        photonView.RPC(nameof(RPC_PlayerVotedContinue), RpcTarget.MasterClient, PhotonNetwork.LocalPlayer.ActorNumber);
+    }
+    private void OnVoteNoClicked()
+    {
+        // Avisamos al MasterClient que este jugador votó "No"
+        photonView.RPC(nameof(RPC_PlayerVotedNo), RpcTarget.MasterClient, PhotonNetwork.LocalPlayer.ActorNumber);
+    }
+
+
+    [PunRPC]
+    private void RPC_PlayerVotedContinue(int actor)
+    {
+        playerVotes[actor] = true;
+
+        int totalVotes = 0;
+        foreach (var v in playerVotes.Values)
+            if (v) totalVotes++;
+
+        photonView.RPC(nameof(RPC_UpdateVotesUI), RpcTarget.All, totalVotes, playerVotes.Count);
+
+        if (totalVotes == playerVotes.Count)
+        {
+            photonView.RPC(nameof(RPC_ResumeMatch), RpcTarget.All);
         }
     }
 
     [PunRPC]
-    private void RPC_ForceEndMatch()
+    private void RPC_PlayerVotedNo(int actor)
     {
-        // Pausa total
+        // Pausar/ocultar paneles en todos
+        HideAllPanels();
+        Time.timeScale = 1f;
+
+        // Mandar a todos al Main Menu
+        PhotonNetwork.AutomaticallySyncScene = true; // asegura que todos carguen la misma escena
+        PhotonNetwork.LoadLevel("Main Menu");
+    }
+
+
+    [PunRPC]
+    private void RPC_UpdateVotesUI(int votes, int total)
+    {
+        votesText.text = $"{votes} / {total}";
+    }
+
+    [PunRPC]
+    private void RPC_ResumeMatch()
+    {
+        HideAllPanels();
+        Time.timeScale = 1f;
+    }
+
+    private void PauseGame()
+    {
         Time.timeScale = 0f;
-
-        if (MatchTimer.Instance != null)
-        {
-            MatchTimer.Instance.StopTimerCompletely();
-        }
-
-        Debug.Log("[DPM] RPC_ForceEndMatch ejecutado → Pausando partida y mostrando panel.");
-
- 
-        // Mostrar panel final
-        if (panelForceMatchEnded != null)
-            panelForceMatchEnded.SetActive(true);
-
-
     }
 }
