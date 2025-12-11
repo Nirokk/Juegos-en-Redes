@@ -24,12 +24,12 @@ public class Bullet : MonoBehaviourPun
     private void OnTriggerEnter2D(Collider2D collision)
     {
         // ⚠️ Ahora solo el Master procesa impactos
-        if (!PhotonNetwork.IsMasterClient) return;
+        if (!photonView.IsMine) return;
 
-        var target = collision.GetComponent<Player_Model>();
-        if (target != null)
+        var targetView = collision.GetComponentInParent<PhotonView>();
+        if (targetView != null)
         {
-            target._photonView.RPC("TakeDamage", RpcTarget.All, (int)damage, photonView.Owner.ActorNumber);
+            targetView.RPC("TakeDamage", targetView.Owner, (int)damage, photonView.Owner.ActorNumber);
         }
 
         if (!collision.CompareTag("Luz"))

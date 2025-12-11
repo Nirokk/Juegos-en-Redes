@@ -17,6 +17,7 @@ public class Player_Model : MonoBehaviourPunCallbacks, IMove_Look
     [Header("Photon")]
     public PhotonView _photonView;
     [SerializeField] private TextMeshProUGUI _playerName;
+    private string _myPlayerName;
     public bool _banned;
 
     [Header("Player Stats")]
@@ -38,10 +39,9 @@ public class Player_Model : MonoBehaviourPunCallbacks, IMove_Look
         if (_spriteRenderer == null) _spriteRenderer = GetComponent<SpriteRenderer>();
         if (_collider == null) _collider = GetComponent<Collider2D>();
 
-        if (photonView.IsMine)
-        {
-            PhotonNetwork.LocalPlayer.TagObject = this.gameObject;
-        }
+        Debug.Log($"[Awake] Player_Model instanciado. Owner = {_photonView.Owner?.NickName}  ViewID = {_photonView.ViewID}");
+
+        _myPlayerName = _photonView.Owner.NickName;
 
     }
 
@@ -50,6 +50,14 @@ public class Player_Model : MonoBehaviourPunCallbacks, IMove_Look
         _currentLife = _maxLife;
         DesactivateLights();
         DesactivateName();
+
+        if (photonView.IsMine)
+        {
+            // ESTE ES EL CORRECTO
+            PhotonNetwork.LocalPlayer.TagObject = this.gameObject;
+
+            Debug.Log($"[TagObject] Seteado correctamente para {PhotonNetwork.LocalPlayer.NickName} → {this.gameObject.name}");
+        }
         //Debug.Log("PLAYER_MODEL Start() — SUSCRIBO al evento → " + this.gameObject.name);
         //MatchTimer.OnMatchEnded += SendPlayerKills;
     }
@@ -135,7 +143,11 @@ public class Player_Model : MonoBehaviourPunCallbacks, IMove_Look
         if (_currentLife <= 0)
         {
             int killerActorNumber = info;
+            Photon.Realtime.Player killerPlayer = PhotonNetwork.CurrentRoom.GetPlayer(killerActorNumber);
+            _photonView.RPC("AddPersonalKill", RpcTarget.All, killerActorNumber);
             Die(killerActorNumber);
+            
+            
         }
     }
 
@@ -182,29 +194,7 @@ public class Player_Model : MonoBehaviourPunCallbacks, IMove_Look
 
         // 1) Avisar al master para sumar puntos de equipo
         _photonView.RPC("ReportKillToMaster", RpcTarget.All, killerActorNumber, PhotonNetwork.LocalPlayer.ActorNumber);
-
-        // 2) Buscar EL script de Player_Model del killer (NO el nuestro)
-        if (killerPlayer.TagObject is GameObject killerObj)
-        {
-            var killerModel = killerObj.GetComponent<Player_Model>();
-            if (killerModel != null)
-            {
-                Debug.Log($"[Die] Enviando RPC AddPersonalKill al verdadero killer: {killerPlayer.NickName}");
-
-                // RPC se ejecuta SOLO en el dueño del killer
-                killerModel.photonView.RPC("AddPersonalKill", killerModel.photonView.Owner, killerActorNumber);
-            }
-            else
-            {
-                Debug.LogError("[Die] TagObject tiene GameObject pero SIN Player_Model !");
-            }
-        }
-        else
-        {
-            Debug.LogError("[Die] TagObject del killer NO es GameObject, ¿pusiste TagObject en Awake?");
-        }
-
-        // 3) Respawn
+        
         StartCoroutine(RespawnRoutine());
     }
     private PhotonView GetPhotonViewByActorNumber(int actorNumber)
@@ -300,10 +290,52 @@ public class Player_Model : MonoBehaviourPunCallbacks, IMove_Look
         ScoreManager.Instance.AddScore(killerTeamIndex, victimTeamIndex);
 
     }
+    [PunRPC]
+    public void AddPersonalKill(int killerActorNumber)
+    {
+        // Buscar todos los Player_Model de escena
+        Player_Model[] players = FindObjectsOfType<Player_Model>();
+
+        foreach (var player in players)
+        {
+            if (player.photonView.OwnerActorNr == killerActorNumber)
+            {
+                player.personalKills++;
+                Debug.Log($"🔥 Kill sumada a {player.photonView.Owner.NickName}. Total: {player.personalKills}");
+                return;
+            }
+        }
+
+        Debug.LogWarning($"❌ No encontré al jugador con ActorNumber {killerActorNumber}");
+    }
+
+    public void SaveKillsToLootLocker()
+    {
+        LootLockerBootStrap.SubmitScore(personalKills, "mostkills", (success) =>
+        {
+            if (success)
+                Debug.Log($"📌 Kills guardadas = {personalKills}");
+            else
+                Debug.LogError("❌ Error enviando kills.");
+        });
+    }
+    public override void OnRoomPropertiesUpdate(ExitGames.Client.Photon.Hashtable changedProps)
+    {
+        if (changedProps.ContainsKey("MatchEnded") )
+        {
+            bool ended = (bool)changedProps["MatchEnded"];
+            if (ended)
+            {
+                Debug.Log($"Partida terminada. Enviando kills: {personalKills}");
+                SaveKillsToLootLocker();
+            }
+        }
+    }
     #endregion
 }
 //    [PunRPC]
-//    public void AddPersonalKill(int killerNumber)
+//    public void
+//    (int killerNumber)
 //    {
 //        Debug.LogError("Añadiendo kill personal. KillerNumber: " + killerNumber + ", Mi ActorNumber: " + _photonView.Owner.ActorNumber);
 //        if (_photonView.Owner.ActorNumber == killerNumber)
@@ -312,7 +344,7 @@ public class Player_Model : MonoBehaviourPunCallbacks, IMove_Look
 //            personalKills++;
 //            Debug.LogError("Kills personales de " + _photonView.Owner.NickName + ": " + personalKills);
 //        }
-       
+
 //    }
 //    public override void OnRoomPropertiesUpdate(ExitGames.Client.Photon.Hashtable changedProps)
 //    {
@@ -340,7 +372,7 @@ public class Player_Model : MonoBehaviourPunCallbacks, IMove_Look
 //                    Debug.LogError("Error al enviar la puntuación.");
 //                }
 //            });
-        
+
 //    }
 //    public override void OnDisable()
 //    {

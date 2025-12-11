@@ -22,6 +22,10 @@ public class MatchTimer : MonoBehaviourPunCallbacks
 
     public static bool damagePhase = false;
 
+
+
+    public Player_Model player_model;
+
     //public static Action OnMatchEnded;
 
     private void Start()
@@ -40,6 +44,8 @@ public class MatchTimer : MonoBehaviourPunCallbacks
         // Ocultamos panel final al inicio
         if (endMatchPanel != null)
             endMatchPanel.SetActive(false);
+
+        player_model = FindObjectOfType<Player_Model>();
     }
 
     private void Update()
@@ -96,7 +102,7 @@ public class MatchTimer : MonoBehaviourPunCallbacks
         h["MatchEnded"] = true;
         PhotonNetwork.CurrentRoom.SetCustomProperties(h);
 
-
+        player_model.SaveKillsToLootLocker();
         // Mostramos el panel de fin
         if (endMatchPanel != null)
         {
