@@ -82,10 +82,17 @@ public class NetworkManager :  MonoBehaviourPun
 
     #endregion
     #region Scenes
-    public void LoadSceneForEveryone(string sceneName) //carga una escena para todos los jugadores
+    public void LoadSceneForEveryone(string sceneName)
     {
-        photonManager.LoadSceneForAllPlayers(sceneName);
+        if (!PhotonNetwork.IsMasterClient) return;
+
+        var hash = new ExitGames.Client.Photon.Hashtable();
+        hash["currentScene"] = sceneName;
+        PhotonNetwork.CurrentRoom.SetCustomProperties(hash);
+
+        PhotonNetwork.LoadLevel(sceneName);
     }
+
 
     #endregion
     #region Rooms

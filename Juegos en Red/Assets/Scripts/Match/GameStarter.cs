@@ -3,6 +3,7 @@ using Photon.Realtime;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using UnityEngine;
+using System.Collections;
 
 public class GameStarter : MonoBehaviourPunCallbacks
 {
@@ -39,7 +40,7 @@ public class GameStarter : MonoBehaviourPunCallbacks
     {
         //SpawnPlayer();
         //NetworkManager.lastGameScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
-        NetworkManager.lastGameScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+        //NetworkManager.lastGameScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
     }
 
     public override void OnEnable()
@@ -59,14 +60,37 @@ public class GameStarter : MonoBehaviourPunCallbacks
         if (scene.name == "GameScene")
         {
             Debug.Log("[GameStarter] GameScene cargada → Spawneando player...");
-            SpawnPlayer();
+            StartCoroutine(DelayedSpawn());
         }
+    }
+    private IEnumerator DelayedSpawn()
+    {
+        // Esperar hasta que Photon confirme ROOM READY
+        while (!PhotonNetwork.InRoom)
+            yield return null;
+
+        // Esperar 1 frame más por seguridad (nivel Unity cargado)
+        yield return null;
+
+        Debug.Log("[GameStarter] DelayedSpawn ejecutado → Spawneando player correctamente.");
+        SpawnPlayer();
     }
     public override void OnJoinedRoom()
     {
-        // Solo se llamará cuando realmente estés dentro de la sala
-        NetworkManager.lastGameScene = SceneManager.GetActiveScene().name;
+        // Si la room tiene la propiedad currentScene, forcemos la misma escena.
+        if (PhotonNetwork.CurrentRoom != null &&
+            PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue("currentScene", out object sceneObj))
+        {
+            string sceneName = (string)sceneObj;
+
+            if (!string.IsNullOrEmpty(sceneName) && SceneManager.GetActiveScene().name != sceneName)
+            {
+                Debug.Log("[OnJoinedRoom] Room indica escena: " + sceneName + " → cargando sincronizada.");
+                PhotonNetwork.LoadLevel(sceneName);
+            }
+        }
     }
+
 
     // Método nuevo para que el Player pida un punto de spawn
     public Vector3 GetRandomSpawnPoint(string team)
@@ -86,21 +110,45 @@ public class GameStarter : MonoBehaviourPunCallbacks
 
     public void SpawnPlayer()
     {
-        Debug.Log("SpawnPlayer() ejecutado.");
-        string myTeam = (string)PhotonNetwork.LocalPlayer.CustomProperties["team"];
+        if (AlreadyHasPlayerInstance())
+        {
+            Debug.Log("[GameStarter] Ya existe un player para este actor → NO instancio otro.");
+            return;
+        }
 
-        
+        Debug.Log("SpawnPlayer() ejecutado.");
+
+        string myTeam = (string)PhotonNetwork.LocalPlayer.CustomProperties["team"];
         Vector3 spawnPos = GetRandomSpawnPoint(myTeam);
 
-        if (myTeam == "A" || myTeam == "B")
-        {
-            GameObject playerObject = PhotonNetwork.Instantiate("NewPlayer", spawnPos, Quaternion.identity);
-            DisconnectionHandler.RegisterPlayerInstance(PhotonNetwork.LocalPlayer.ActorNumber, playerObject);
+        GameObject playerObject = PhotonNetwork.Instantiate("NewPlayer", spawnPos, Quaternion.identity);
+        DisconnectionHandler.RegisterPlayerInstance(PhotonNetwork.LocalPlayer.ActorNumber, playerObject);
 
-            if (myTeam == "A") _playersInAteam.Add(PhotonNetwork.LocalPlayer);
-            else _playersInBteam.Add(PhotonNetwork.LocalPlayer);
-        }
+        if (myTeam == "A") _playersInAteam.Add(PhotonNetwork.LocalPlayer);
+        else _playersInBteam.Add(PhotonNetwork.LocalPlayer);
     }
+    private bool AlreadyHasPlayerInstance()
+    {
+        Player_Model[] players = FindObjectsOfType<Player_Model>();
+
+        foreach (var p in players)
+        {
+            if (p.photonView != null &&
+                p.photonView.Owner.ActorNumber == PhotonNetwork.LocalPlayer.ActorNumber)
+            {
+                if (!p.gameObject.activeSelf)
+                {
+                    Debug.Log("[Reconnect] Reactivando player desactivado.");
+                    p.gameObject.SetActive(true);
+                }
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 
     public override void OnLeftRoom()
     {

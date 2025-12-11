@@ -22,31 +22,28 @@ public class DisconnectionPauseManager : MonoBehaviourPunCallbacks
     public float timeToResumeMatch = 5f;
 
     private float currentTimer;
-
     private bool waitingForReconnect = false;
     private bool reconnectionHappened = false;
-
     private int disconnectedTeamA = 0;
     private int disconnectedTeamB = 0;
 
     public static bool gamePaused = false;
 
-    private static DisconnectionPauseManager _instance;
-    public static DisconnectionPauseManager Instance { get => _instance; }
+    private static DisconnectionPauseManager instance;
 
     private void Awake()
     {
-        if (_instance == null)
+        if (instance != null && instance != this)
         {
-            _instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
-        {
+            Debug.Log("[DPM] Otro DisconnectionPauseManager encontrado → destruyendo duplicado");
             Destroy(gameObject);
+            return;
         }
+        instance = this;
         DisableAllPanels();
     }
+
+    // NOTA: quité DontDestroyOnLoad: este manager debe existir en la GameScene como objeto de escena único.
 
     private void DisableAllPanels()
     {
@@ -56,13 +53,13 @@ public class DisconnectionPauseManager : MonoBehaviourPunCallbacks
         panelContinueMatch?.SetActive(false);
     }
 
-    private void PauseGame()
+    private void PauseGameLocal()
     {
         gamePaused = true;
         Time.timeScale = 0f;
     }
 
-    private void ResumeGame()
+    private void ResumeGameLocal()
     {
         gamePaused = false;
         Time.timeScale = 1f;
@@ -72,13 +69,23 @@ public class DisconnectionPauseManager : MonoBehaviourPunCallbacks
     // Alguien se desconecta
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
-        if (!PhotonNetwork.IsMasterClient) return;
+        Debug.Log($"[DPM] OnPlayerLeftRoom llamado en cliente {PhotonNetwork.LocalPlayer.NickName} (IsMaster={PhotonNetwork.IsMasterClient}). other: {otherPlayer.NickName} ({otherPlayer.ActorNumber}) InRoom={PhotonNetwork.InRoom}");
 
+        // Guardar conteo y timers solo si estamos en la sala
         CountTeams();
         waitingForReconnect = true;
         reconnectionHappened = false;
         currentTimer = timeToWaitReconnect;
 
+        // >>> TEMPORAL: permite que cualquier cliente pida la pausa (para test)
+        // Esto nos va a decir si el problema era "master only" o "RPCs no llegan".
+        if (photonView == null)
+        {
+            Debug.LogError("[DPM] photonView == null, no puedo llamar RPCs.");
+            return;
+        }
+
+        // Llamamos RPC desde *quien detectó* la desconexión (temporal)
         photonView.RPC(nameof(RPC_ShowWaitingPanel), RpcTarget.AllBuffered);
         photonView.RPC(nameof(RPC_PauseGameAll), RpcTarget.AllBuffered);
     }
@@ -86,19 +93,29 @@ public class DisconnectionPauseManager : MonoBehaviourPunCallbacks
     // Alguien vuelve
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
-        if (!PhotonNetwork.IsMasterClient) return;
-
+        Debug.Log($"[DPM] OnPlayerEnteredRoom llamado en cliente {PhotonNetwork.LocalPlayer.NickName}. newPlayer: {newPlayer.NickName}");
         CountTeams();
 
         reconnectionHappened = true;
         waitingForReconnect = false;
         currentTimer = timeToResumeMatch;
 
+        if (photonView == null)
+        {
+            Debug.LogError("[DPM] photonView == null en OnPlayerEnteredRoom.");
+            return;
+        }
+
         photonView.RPC(nameof(RPC_ShowReconnectPanel), RpcTarget.AllBuffered);
 
-        if (DisconnectionHandler.playerInstances.TryGetValue(newPlayer.ActorNumber, out GameObject playerObj))
+        if (DisconnectionHandler.playerInstances != null &&
+            DisconnectionHandler.playerInstances.TryGetValue(newPlayer.ActorNumber, out GameObject playerObj))
         {
             playerObj.SetActive(true);
+        }
+        else
+        {
+            Debug.Log($"[DPM] No encontré playerObj para actor {newPlayer.ActorNumber}");
         }
     }
 
@@ -115,10 +132,12 @@ public class DisconnectionPauseManager : MonoBehaviourPunCallbacks
                 if ((string)team == "B") disconnectedTeamB++;
             }
         }
+        Debug.Log($"[DPM] CountTeams => A: {disconnectedTeamA} | B: {disconnectedTeamB}");
     }
 
     private void Update()
     {
+        // Sólo el Master debería procesar la cuenta atrás, pero para test mantenemos esto:
         if (!PhotonNetwork.IsMasterClient) return;
         if (!gamePaused) return;
 
@@ -126,7 +145,7 @@ public class DisconnectionPauseManager : MonoBehaviourPunCallbacks
 
         if (waitingForReconnect)
         {
-            photonView.RPC(nameof(RPC_UpdateWaitingTimer), RpcTarget.All, currentTimer);
+            if (photonView != null) photonView.RPC(nameof(RPC_UpdateWaitingTimer), RpcTarget.All, currentTimer);
 
             if (currentTimer <= 0f)
             {
@@ -142,7 +161,7 @@ public class DisconnectionPauseManager : MonoBehaviourPunCallbacks
         }
         else if (reconnectionHappened)
         {
-            photonView.RPC(nameof(RPC_UpdateReconnectTimer), RpcTarget.All, currentTimer);
+            if (photonView != null) photonView.RPC(nameof(RPC_UpdateReconnectTimer), RpcTarget.All, currentTimer);
 
             if (currentTimer <= 0f)
             {
@@ -157,6 +176,7 @@ public class DisconnectionPauseManager : MonoBehaviourPunCallbacks
     [PunRPC]
     private void RPC_ShowWaitingPanel()
     {
+        Debug.Log("[DPM_RPC] ShowWaitingPanel recibido.");
         DisableAllPanels();
         panelWaitingPlayer?.SetActive(true);
     }
@@ -164,6 +184,7 @@ public class DisconnectionPauseManager : MonoBehaviourPunCallbacks
     [PunRPC]
     private void RPC_ShowReconnectPanel()
     {
+        Debug.Log("[DPM_RPC] ShowReconnectPanel recibido.");
         DisableAllPanels();
         panelPlayerReconnect?.SetActive(true);
     }
@@ -198,6 +219,7 @@ public class DisconnectionPauseManager : MonoBehaviourPunCallbacks
     [PunRPC]
     private void RPC_PauseGameAll()
     {
+        Debug.Log("[DPM_RPC] RPC_PauseGameAll recibido -> pausando localmente.");
         gamePaused = true;
         Time.timeScale = 0f;
     }
@@ -212,6 +234,6 @@ public class DisconnectionPauseManager : MonoBehaviourPunCallbacks
     [PunRPC]
     private void RPC_ResumeMatch()
     {
-        ResumeGame();
+        ResumeGameLocal();
     }
 }

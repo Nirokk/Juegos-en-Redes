@@ -3,7 +3,7 @@ using Photon.Realtime;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DisconnectionHandler : MonoBehaviourPunCallbacks
+public class DisconnectionHandler : MonoBehaviour
 {
     public static Dictionary<int, GameObject> playerInstances = new Dictionary<int, GameObject>();
     public static DisconnectionHandler Instance;
@@ -32,9 +32,9 @@ public class DisconnectionHandler : MonoBehaviourPunCallbacks
         }
     }
 
-    public override void OnPlayerLeftRoom(Player otherPlayer)
-    {
-        Debug.Log($"[DH] Jugador se desconectó → {otherPlayer.NickName} ({otherPlayer.ActorNumber})");
-    }
+    //public override void OnPlayerLeftRoom(Player otherPlayer)
+    //{
+    //    Debug.Log($"[DH] Jugador se desconectó → {otherPlayer.NickName} ({otherPlayer.ActorNumber})");
+    //}
 
 }

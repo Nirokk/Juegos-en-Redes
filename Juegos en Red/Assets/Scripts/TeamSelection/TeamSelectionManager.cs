@@ -71,7 +71,7 @@ public class TeamSelectionManager : MonoBehaviourPunCallbacks
 
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
-        otherPlayer.CustomProperties["team"] = null;
+        //otherPlayer.CustomProperties["team"] = null;
         CheckTeamsAndUpdateStartButton();
     }
 
