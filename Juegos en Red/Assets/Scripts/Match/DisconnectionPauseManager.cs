@@ -151,14 +151,13 @@ public class DisconnectionPauseManager : MonoBehaviourPunCallbacks
         HideAllPanels();
         MatchTimer.Instance.matchPaude = false;
 
+        // Indicar que deben mostrar el panel al cargar Main Menu
+        MainMenuNotification.showNoVotePanel = true;
+
         // Mandar a todos al Main Menu
         PhotonNetwork.AutomaticallySyncScene = true; // asegura que todos carguen la misma escena
-        
         NetworkManager.Instance.LoadSceneForEveryone("Main Menu");
-
-        
     }
-
 
     [PunRPC]
     private void RPC_UpdateVotesUI(int votes, int total)
