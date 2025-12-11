@@ -1,6 +1,5 @@
-using UnityEngine;
+﻿using UnityEngine;
 using Photon.Pun;
-using System;
 using UnityEngine.SceneManagement;
 
 public class ReconnectButtons : MonoBehaviourPunCallbacks
@@ -27,32 +26,23 @@ public class ReconnectButtons : MonoBehaviourPunCallbacks
     }
 
 
+    // BOTÓN RECONNECT
     public void ButtonReconectar()
     {
-        // Si ya estamos conectados a Photon, probamos Rejoin
         if (PhotonNetwork.IsConnected)
         {
-            if (NetworkManager.Instance != null &&
-                NetworkManager.wasInMatchBefore &&
-                !string.IsNullOrEmpty(NetworkManager.Instance.GetCurrentRoomName()))
+            if (NetworkManager.wasInMatchBefore && !string.IsNullOrEmpty(NetworkManager.lastRoomName))
             {
+                Debug.Log("Intentando RejoinRoom: " + NetworkManager.lastRoomName);
                 PhotonNetwork.RejoinRoom(NetworkManager.lastRoomName);
-                this.photonView.ControllerActorNr = NetworkManager.lastRoomID;
-                SceneManager.LoadScene("GameScene");
-                Debug.Log(this.photonView.ViewID);
+                // NO cargar escena acá. Esperar OnJoinedRoom.
             }
-            else
-            {
-                ShowErrorPanel();
-            }
+            else ShowErrorPanel();
         }
         else
         {
-            // Caso donde realmente hubo desconexi�n del servidor usamos ReconnectAndRejoin
             if (!PhotonNetwork.ReconnectAndRejoin())
-            {
                 ShowErrorPanel();
-            }
         }
     }
 

@@ -1,4 +1,4 @@
-using Photon.Pun;
+﻿using Photon.Pun;
 using Photon.Realtime;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
@@ -6,11 +6,11 @@ using UnityEngine;
 
 public class GameStarter : MonoBehaviourPunCallbacks
 {
-    //  Creamos una instancia est�tica para acceder desde otros scripts
+    //  Creamos una instancia estática para acceder desde otros scripts
     public static GameStarter Instance;
 
     public Transform[] spawnPoints;
-    // public Player _player { get; private set; } // No parece necesario exponer esto as�, pero lo dejo comentado
+    // public Player _player { get; private set; } // No parece necesario exponer esto así, pero lo dejo comentado
 
     [Header("Spawn Points - Team A")]
     public List<Transform> teamAspawnPointsList;
@@ -24,7 +24,7 @@ public class GameStarter : MonoBehaviourPunCallbacks
 
     private void Awake()
     {
-        // Configuraci�n del Singleton
+        // Configuración del Singleton
         if (Instance == null)
         {
             Instance = this;
@@ -37,11 +37,38 @@ public class GameStarter : MonoBehaviourPunCallbacks
 
     private void Start()
     {
-        SpawnPlayer();
+        //SpawnPlayer();
+        //NetworkManager.lastGameScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
         NetworkManager.lastGameScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
     }
 
-    // M�todo nuevo para que el Player pida un punto de spawn
+    public override void OnEnable()
+    {
+        base.OnEnable();
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    public override void OnDisable()
+    {
+        base.OnDisable();
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (scene.name == "GameScene")
+        {
+            Debug.Log("[GameStarter] GameScene cargada → Spawneando player...");
+            SpawnPlayer();
+        }
+    }
+    public override void OnJoinedRoom()
+    {
+        // Solo se llamará cuando realmente estés dentro de la sala
+        NetworkManager.lastGameScene = SceneManager.GetActiveScene().name;
+    }
+
+    // Método nuevo para que el Player pida un punto de spawn
     public Vector3 GetRandomSpawnPoint(string team)
     {
         if (team == "A" && teamAspawnPointsList.Count > 0)
@@ -59,6 +86,7 @@ public class GameStarter : MonoBehaviourPunCallbacks
 
     public void SpawnPlayer()
     {
+        Debug.Log("SpawnPlayer() ejecutado.");
         string myTeam = (string)PhotonNetwork.LocalPlayer.CustomProperties["team"];
 
         

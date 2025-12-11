@@ -6,6 +6,13 @@ using UnityEngine;
 public class DisconnectionHandler : MonoBehaviourPunCallbacks
 {
     public static Dictionary<int, GameObject> playerInstances = new Dictionary<int, GameObject>();
+    public static DisconnectionHandler Instance;
+    private void Awake()
+    {
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
+    }
+
 
     public static void RegisterPlayerInstance(int actorNumber, GameObject playerObj)
     {

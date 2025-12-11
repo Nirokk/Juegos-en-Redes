@@ -75,13 +75,12 @@ public class DisconnectionPauseManager : MonoBehaviourPunCallbacks
         if (!PhotonNetwork.IsMasterClient) return;
 
         CountTeams();
-
         waitingForReconnect = true;
         reconnectionHappened = false;
         currentTimer = timeToWaitReconnect;
 
         photonView.RPC(nameof(RPC_ShowWaitingPanel), RpcTarget.AllBuffered);
-        PauseGame();
+        photonView.RPC(nameof(RPC_PauseGameAll), RpcTarget.AllBuffered);
     }
 
     // Alguien vuelve
@@ -194,6 +193,20 @@ public class DisconnectionPauseManager : MonoBehaviourPunCallbacks
     {
         continueTimerTMP_A.text = Mathf.Ceil(time).ToString();
         continueTimerTMP_B.text = Mathf.Ceil(time).ToString();
+    }
+
+    [PunRPC]
+    private void RPC_PauseGameAll()
+    {
+        gamePaused = true;
+        Time.timeScale = 0f;
+    }
+
+    [PunRPC]
+    private void RPC_ResumeGameAll()
+    {
+        gamePaused = false;
+        Time.timeScale = 1f;
     }
 
     [PunRPC]

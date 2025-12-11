@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Photon.Realtime;
+using UnityEngine.SceneManagement;
 
 public class NetworkManager :  MonoBehaviourPun
 {
@@ -28,6 +29,7 @@ public class NetworkManager :  MonoBehaviourPun
     public static string lastGameScene = "";
     public static string lastRoomName = "";
     public static int lastRoomID = 0;
+    public string currentRoomName;
 
     private void Awake()
     {
@@ -90,8 +92,9 @@ public class NetworkManager :  MonoBehaviourPun
 
     public string GetCurrentRoomName()
     {
-        string name = photonManager.GetCurrentRoom().Name;
-        return name;
+        return photonManager.GetCurrentRoom().Name;
+        //string name = photonManager.GetCurrentRoom().Name;
+        //return name;
     }
     private void CheckIfJoinedRoom()
     {
@@ -109,7 +112,11 @@ public class NetworkManager :  MonoBehaviourPun
         photonManager.CreateRoom(roomName);
         //photonManager.CreateRoom(roomName, CheckRoomCreated);
         lastRoomName = roomName;
-        lastRoomID = photonManager.photonView.ControllerActorNr;
+        currentRoomName = roomName;
+        lastRoomID = PhotonNetwork.LocalPlayer.ActorNumber;
+        //return photonManager.GetCurrentRoom().Name;
+        //photonManager.CreateRoom(roomName);
+        //lastRoomID = photonManager.photonView.ControllerActorNr;
 
     }
     private void CheckRoomCreated(List<RoomInfo> rooms)
@@ -130,8 +137,22 @@ public class NetworkManager :  MonoBehaviourPun
     {
         photonManager.JoinRoom(roomName);
         lastRoomName = roomName ;
-        lastRoomID = photonManager.photonView.ControllerActorNr;
+        currentRoomName = roomName;
+        //photonManager.JoinRoom(roomName);
+        lastRoomID = PhotonNetwork.LocalPlayer.ActorNumber;
+        //lastRoomID = photonManager.photonView.ControllerActorNr;
     }
+
+    public void SaveSession()
+    {
+        wasInMatchBefore = true;
+        currentRoomName = PhotonNetwork.CurrentRoom.Name;
+        lastGameScene = SceneManager.GetActiveScene().name;
+    }
+
+
+
+
 
     #endregion
     #region Teams Controller
