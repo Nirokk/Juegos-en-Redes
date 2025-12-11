@@ -117,7 +117,9 @@ public class MatchTimer : MonoBehaviourPunCallbacks
         h["MatchEnded"] = true;
         PhotonNetwork.CurrentRoom.SetCustomProperties(h);
 
-        //player_model.SaveKillsToLootLocker();
+        player_model = FindObjectOfType<Player_Model>();
+
+        player_model.SaveKillsToLootLocker();
         // Mostramos el panel de fin
         if (endMatchPanel != null)
         {
@@ -138,7 +140,7 @@ public class MatchTimer : MonoBehaviourPunCallbacks
             returnToLobbyButton.onClick.AddListener(ReturnToLobby);
         }
 
-        player_model.SaveKillsToLootLocker();
+        //player_model.SaveKillsToLootLocker();
     }
 
     private string GetWinningTeam()
