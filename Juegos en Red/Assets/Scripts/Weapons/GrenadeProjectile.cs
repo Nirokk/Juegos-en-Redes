@@ -54,7 +54,7 @@ public class GrenadeProjectile : MonoBehaviourPun
                 if (model != null)
                 {
                     PhotonView pv = model._photonView; // o GetComponentInParent<PhotonView>()
-                    pv.RPC("TakeDamage", RpcTarget.All, damage);
+                    pv.RPC("TakeDamage", RpcTarget.All, damage, ownerActorID);
                 }
             }
             // Antes de destruir la granada:

@@ -17,15 +17,16 @@ public class LightDamageZone : MonoBehaviourPun
         if (!PhotonNetwork.IsMasterClient) return;   
 
         //ref jugador
-        Player_Model target = other.GetComponent<Player_Model>();
-        if (target == null) return;
-
+        var targetView = other.GetComponentInParent<PhotonView>();
+        if (targetView != null) return;
+        
+           
         timer -= Time.deltaTime;
 
         if (timer <= 0f)
         {
             //RPC
-            target._photonView.RPC("TakeDamage", RpcTarget.All, (int)damage);
+            targetView.RPC("TakeDamage", targetView.Owner, (int)damage, photonView.Owner.ActorNumber);
 
             timer = damageInterval;
         }

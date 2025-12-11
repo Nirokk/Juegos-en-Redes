@@ -19,6 +19,7 @@ public class MatchTimer : MonoBehaviourPunCallbacks
     public Button returnToLobbyButton;
 
     private bool matchEnded = false;
+    public bool matchPaude = false;
 
     public static bool damagePhase = false;
     public static MatchTimer Instance;
@@ -57,8 +58,9 @@ public class MatchTimer : MonoBehaviourPunCallbacks
         //if (DisconnectionPauseManager.gamePaused) return;
 
         if (matchEnded) return;
+        if (matchPaude) return;
 
-        if (PhotonNetwork.CurrentRoom.CustomProperties.ContainsKey("MatchStartTime"))
+        if (PhotonNetwork.CurrentRoom.CustomProperties.ContainsKey("MatchStartTime") )
         {
             startTime = (double)PhotonNetwork.CurrentRoom.CustomProperties["MatchStartTime"];
             double elapsed = PhotonNetwork.Time - startTime;

@@ -45,8 +45,8 @@ public class DisconnectionPauseManager : MonoBehaviourPunCallbacks
         waitingReconnect = true;
         currentTimer = reconnectTime;
 
-        photonView.RPC(nameof(RPC_ShowReconnectCountdown), RpcTarget.All);
-        PauseGame();
+        photonView.RPC(nameof(RPC_ShowReconnectCountdown), RpcTarget.AllBuffered);
+        //PauseGame();
     }
 
     private void Update()
@@ -56,12 +56,12 @@ public class DisconnectionPauseManager : MonoBehaviourPunCallbacks
 
         currentTimer -= Time.unscaledDeltaTime;
 
-        photonView.RPC(nameof(RPC_UpdateCountdownUI), RpcTarget.All, currentTimer);
+        photonView.RPC(nameof(RPC_UpdateCountdownUI), RpcTarget.AllBuffered, currentTimer);
 
         if (currentTimer <= 0f)
         {
             waitingReconnect = false;
-            photonView.RPC(nameof(RPC_StartVoteContinuePanel), RpcTarget.All);
+            photonView.RPC(nameof(RPC_StartVoteContinuePanel), RpcTarget.AllBuffered);
         }
     }
 
@@ -69,11 +69,12 @@ public class DisconnectionPauseManager : MonoBehaviourPunCallbacks
     [PunRPC]
     private void RPC_ShowReconnectCountdown()
     {
+        PauseGame();
         HideAllPanels();
         panelReconnectCountdown.SetActive(true);
         countdownSlider.maxValue = reconnectTime;
         countdownSlider.value = reconnectTime;
-        PauseGame();
+        
     }
 
     [PunRPC]
@@ -100,7 +101,7 @@ public class DisconnectionPauseManager : MonoBehaviourPunCallbacks
         foreach (Player p in PhotonNetwork.PlayerList)
             playerVotes[p.ActorNumber] = false;
 
-        votesText.text = $"0 / {playerVotes.Count}";
+        votesText.text = $"0 / {playerVotes.Count - 1}";
 
         voteContinueButton.onClick.RemoveAllListeners();
         voteContinueButton.onClick.AddListener(OnVoteContinueClicked);
@@ -141,11 +142,14 @@ public class DisconnectionPauseManager : MonoBehaviourPunCallbacks
     {
         // Pausar/ocultar paneles en todos
         HideAllPanels();
-        Time.timeScale = 1f;
+        MatchTimer.Instance.matchPaude = false;
 
         // Mandar a todos al Main Menu
         PhotonNetwork.AutomaticallySyncScene = true; // asegura que todos carguen la misma escena
-        PhotonNetwork.LoadLevel("Main Menu");
+        
+        NetworkManager.Instance.LoadSceneForEveryone("Main Menu");
+
+        
     }
 
 
@@ -159,11 +163,11 @@ public class DisconnectionPauseManager : MonoBehaviourPunCallbacks
     private void RPC_ResumeMatch()
     {
         HideAllPanels();
-        Time.timeScale = 1f;
+        MatchTimer.Instance.matchPaude = false;
     }
 
-    private void PauseGame()
+    public void PauseGame()
     {
-        Time.timeScale = 0f;
+        MatchTimer.Instance.matchPaude = true;
     }
 }
