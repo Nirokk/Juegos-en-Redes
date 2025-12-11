@@ -98,10 +98,14 @@ public class DisconnectionPauseManager : MonoBehaviourPunCallbacks
 
         // Inicializamos votos en NO
         playerVotes.Clear();
+
+        // Solo agregamos jugadores conectados actualmente
         foreach (Player p in PhotonNetwork.PlayerList)
             playerVotes[p.ActorNumber] = false;
 
-        votesText.text = $"0 / {playerVotes.Count - 1}";
+        // Ajustamos total de votos excluyendo al desconectado
+        int totalPlayersToVote = playerVotes.Count - 1; // el que se desconectó
+        votesText.text = $"0 / {totalPlayersToVote}";
 
         voteContinueButton.onClick.RemoveAllListeners();
         voteContinueButton.onClick.AddListener(OnVoteContinueClicked);
@@ -129,7 +133,8 @@ public class DisconnectionPauseManager : MonoBehaviourPunCallbacks
         foreach (var v in playerVotes.Values)
             if (v) totalVotes++;
 
-        photonView.RPC(nameof(RPC_UpdateVotesUI), RpcTarget.All, totalVotes, playerVotes.Count);
+        int totalPlayersToVote = playerVotes.Count - 1; // excluye al desconectado
+        photonView.RPC(nameof(RPC_UpdateVotesUI), RpcTarget.All, totalVotes, totalPlayersToVote);
 
         if (totalVotes == playerVotes.Count)
         {
