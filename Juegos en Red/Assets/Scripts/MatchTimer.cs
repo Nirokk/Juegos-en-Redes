@@ -120,8 +120,11 @@ public class MatchTimer : MonoBehaviourPunCallbacks
         PhotonNetwork.CurrentRoom.SetCustomProperties(h);
 
         player_model = FindObjectOfType<Player_Model>();
-
-        player_model.SaveKillsToLootLocker();
+        if (photonView.IsMine)
+        {
+            player_model.SaveKillsToLootLocker();
+        }
+            
         // Mostramos el panel de fin
         if (endMatchPanel != null)
         {
