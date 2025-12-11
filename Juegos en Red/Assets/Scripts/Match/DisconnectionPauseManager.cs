@@ -136,7 +136,7 @@ public class DisconnectionPauseManager : MonoBehaviourPunCallbacks
         int totalPlayersToVote = playerVotes.Count - 1; // excluye al desconectado
         photonView.RPC(nameof(RPC_UpdateVotesUI), RpcTarget.All, totalVotes, totalPlayersToVote);
 
-        if (totalVotes == playerVotes.Count)
+        if (totalVotes == playerVotes.Count - 1)
         {
             photonView.RPC(nameof(RPC_ResumeMatch), RpcTarget.All);
         }
