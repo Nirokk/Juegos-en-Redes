@@ -121,7 +121,10 @@ public class MatchTimer : MonoBehaviourPunCallbacks
 
         player_model = FindObjectOfType<Player_Model>();
 
+        
         player_model.SaveKillsToLootLocker();
+        
+            
         
             
         // Mostramos el panel de fin

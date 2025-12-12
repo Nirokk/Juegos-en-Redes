@@ -146,7 +146,7 @@ public class Player_Model : MonoBehaviourPunCallbacks, IMove_Look
             int killerActorNumber = info;
             myKillerActorNumber = killerActorNumber;
             Photon.Realtime.Player killerPlayer = PhotonNetwork.CurrentRoom.GetPlayer(killerActorNumber);
-            _photonView.RPC("AddPersonalKill", RpcTarget.All, killerActorNumber);
+            
             Die(killerActorNumber);
 
 
@@ -196,7 +196,7 @@ public class Player_Model : MonoBehaviourPunCallbacks, IMove_Look
 
         // 1) Avisar al master para sumar puntos de equipo
         _photonView.RPC("ReportKillToMaster", RpcTarget.All, killerActorNumber, PhotonNetwork.LocalPlayer.ActorNumber);
-
+        _photonView.RPC("AddPersonalKill", killerPlayer , killerActorNumber);
         StartCoroutine(RespawnRoutine());
     }
     private PhotonView GetPhotonViewByActorNumber(int actorNumber)
@@ -313,13 +313,16 @@ public class Player_Model : MonoBehaviourPunCallbacks, IMove_Look
 
     public void SaveKillsToLootLocker()
     {
-        LootLockerBootStrap.SubmitScore(myKillerActorNumber, personalKills, "mostkills", (success) =>
-        {
-            if (success)
-                Debug.Log($"📌 Kills guardadas = {personalKills}");
-            else
-                Debug.LogError("❌ Error enviando kills.");
-        });
+        
+            LootLockerBootStrap.SubmitScore(myKillerActorNumber, personalKills, "mostkills", (success) =>
+            {
+                if (success)
+                    Debug.Log($"📌 Kills guardadas = {personalKills}");
+                else
+                    Debug.LogError("❌ Error enviando kills.");
+            });
+        
+        
         
     }
  #endregion 

@@ -22,22 +22,10 @@ public class LootLockerBootStrap : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
-        Init();
-    }
-
-    private void Init()
-    {
-        // Generar un ID persistente solo para iniciar sesión Guest
-        if (!PlayerPrefs.HasKey("LL_GUEST_IDENTIFIER"))
-        {
-            string guid = Guid.NewGuid().ToString();
-            PlayerPrefs.SetString("LL_GUEST_IDENTIFIER", guid);
-        }
-
-        playerIdentifier = PlayerPrefs.GetString("LL_GUEST_IDENTIFIER");
-
         StartGuest();
     }
+
+   
 
     void StartGuest()
     {
@@ -51,8 +39,8 @@ public class LootLockerBootStrap : MonoBehaviour
 
             // GUARDAR ID REAL DEL PLAYER DEVUELTO POR LOOTLOCKER 👇
             playerID = response.player_id;
-            PlayerPrefs.SetInt("LL_PLAYER_ID", playerID);
-            PlayerPrefs.Save();
+            //PlayerPrefs.SetInt("LL_PLAYER_ID", playerID);
+            //PlayerPrefs.Save();
 
             SessionStarted = true;
             Debug.Log($"[LootLocker] Sesión iniciada. Player ID real: {playerID}");
